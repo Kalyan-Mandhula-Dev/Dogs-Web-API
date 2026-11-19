@@ -1,0 +1,96 @@
+.breed-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.breed-page h2 {
+    color: #333;
+}
+
+.breed-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.breed-table th {
+    background-color: #eeeeee;
+    text-align: left;
+}
+
+.breed-table th,
+.breed-table td {
+    padding: 12px;
+    border: 1px solid #dddddd;
+}
+
+.breed-name {
+    cursor: pointer;
+}
+
+.breed-name:hover {
+    color: #2563eb;
+    text-decoration: underline;
+}
+
+.breed-table tr:hover {
+    background-color: #F1F6FF;
+}
+
+.edit-button,
+.delete-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin: 5px;
+}
+
+.header-div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-actions button {
+    background-color: #4a6dd5;
+    color: white;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-inline: 5px;
+}
+
+.header-actions button:hover {
+    background-color: #1d4ed8;
+}
+
+.no-breeds-container {
+    height: 50vh;
+    text-align: center;
+}
+
+.back-btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.back-btn span {
+    text-decoration: underline;
+}
+
+.cursor-page-load-more {
+    display: flex;
+    justify-content: center;
+    padding-block: 20px;
+}
+
+.cursor-page-load-more button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}

@@ -1,0 +1,17 @@
+.subbreed-list {
+    list-style: none;
+    padding: 0;
+}
+
+.remove-subbreed-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 8px;
+    background: #F1F6FF;
+}
+
+.remove-subbreed-btn span {
+    cursor: pointer;
+}
