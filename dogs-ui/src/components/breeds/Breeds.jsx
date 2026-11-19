@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import '../styles/breeds.css';
+import '../../styles/breeds.css';
 import { useNavigate } from 'react-router';
-import AddBreedForm from './AddBreedForm';
-import EditBreedForm from './EditBreedForm';
-import DeleteBreedPopup from './DeleteBreedPopup';
-import ImportFilePopup from './ImportFilePopup';
+import AddBreedForm from './forms/AddBreedForm';
+import EditBreedForm from './forms/EditBreedForm';
+import DeleteBreedPopup from './actions/DeleteBreedPopup';
+import ImportFilePopup from './actions/ImportFilePopup';
 
 export default function Breeds() {
 

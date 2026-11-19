@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import '../styles/popup.css';
+import '../../../styles/popup.css';
 
 export default function EditSubBreedForm(props) {
 

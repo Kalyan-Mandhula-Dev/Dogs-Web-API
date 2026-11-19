@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import '../styles/popup.css';
-import '../styles/add-breed.css';
+import '../../../styles/popup.css';
+import '../../../styles/add-breed.css';
 
 export default function AddBreedForm(props) {
 

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router"
-import '../styles/breeds.css'
-import EditSubBreedForm from "./EditSubBreedForm";
-import DeleteSubBreedPopup from "./DeleteSubBreedPopup";
-import AddSubBreedForm from "./AddSubBreedForm";
+import '../../styles/breeds.css'
+import EditSubBreedForm from "./forms//EditSubBreedForm";
+import DeleteSubBreedPopup from "./actions//DeleteSubBreedPopup";
+import AddSubBreedForm from "./forms/AddSubBreedForm";
 import { useNavigate } from "react-router";
 
 

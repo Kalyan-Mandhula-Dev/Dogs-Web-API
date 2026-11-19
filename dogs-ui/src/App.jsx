@@ -1,7 +1,7 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route } from 'react-router'
-import Breeds from './components/Breeds'
-import SubBreeds from './components/SubBreeds'
+import Breeds from './components/breeds/Breeds'
+import SubBreeds from './components/breeds/SubBreeds'
 
 function App() {
 

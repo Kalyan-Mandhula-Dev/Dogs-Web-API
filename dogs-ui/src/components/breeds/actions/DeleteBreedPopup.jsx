@@ -1,5 +1,5 @@
-import '../styles/popup.css';
-import '../styles/delete-breed.css';
+import '../../../styles/popup.css';
+import '../../../styles/delete-breed.css';
 
 export default function DeleteBreedPopup(props) {
 
