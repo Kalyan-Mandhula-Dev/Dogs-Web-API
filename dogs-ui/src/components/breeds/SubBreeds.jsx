@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router"
+import { useLocation, useParams } from "react-router"
 import '../../styles/breeds.css'
 import EditSubBreedForm from "./forms//EditSubBreedForm";
 import DeleteSubBreedPopup from "./actions//DeleteSubBreedPopup";
@@ -10,7 +10,9 @@ import { useNavigate } from "react-router";
 
 export default function SubBreeds() {
 
-    const { breedId, breedName } = useParams();
+    const { breedId } = useParams();
+    const location = useLocation();
+    const breedName = location.state?.breedName;
     const [subBreeds, setSubBreeds] = useState([])
     const [selectedSubBreed, setSelectedSubBreed] = useState(null);
     const [showEditPopUp, setShowEditPopUp] = useState(false);

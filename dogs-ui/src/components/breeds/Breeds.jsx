@@ -91,7 +91,9 @@ export default function Breeds() {
                             <tr
                                 key={index}
                             >
-                                <td><span className="breed-name" onClick={() => navigate(`/breeds/${breed.id}/${breed.name}`)}>{breed.name}</span></td>
+                                <td><span className="breed-name" onClick={() => navigate(`/breeds/${breed.id}`, {
+                                    state: { breedName: breed.name }
+                                })}>{breed.name}</span></td>
                                 <td>{breed.subBreeds?.length}</td>
                                 <td>
                                     {new Date(breed.modifiedAt).toLocaleString('en-US', {

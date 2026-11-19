@@ -10,7 +10,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Breeds />} />
-          <Route path="/breeds/:breedId/:breedName" element={<SubBreeds />} />
+          <Route path="/breeds/:breedId" element={<SubBreeds />} />
         </Routes>
       </Router>
     </>
