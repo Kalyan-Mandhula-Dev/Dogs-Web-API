@@ -20,6 +20,7 @@ export default function SubBreeds() {
     const [showAddPopUp, setShowAddPopUp] = useState(false);
     const [lastId, setLastId] = useState(0);
     const [hasMore, setHasMore] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const SUBBREEDS_API_URL = import.meta.env.VITE_DOGS_API_URL + `/v1/breeds/${breedId}/subbreeds`;
     const navigate = useNavigate();
@@ -36,6 +37,7 @@ export default function SubBreeds() {
         console.log("sub-breeds : ", data)
 
         setSubBreeds(prev => [...prev, ...data]);
+        setLoading(false);
 
         if (data.length > 0) {
             setLastId(data[data.length - 1].id);
@@ -67,7 +69,13 @@ export default function SubBreeds() {
                     <th>Action</th>
                 </tr>
                 {
-                    subBreeds.length !== 0 ? subBreeds.map((subBreed, index) => {
+                    loading ? (
+                        <tr>
+                            <td colSpan="4" className="no-breeds-container">
+                                Loading sub-breeds...
+                            </td>
+                        </tr>
+                    ) : subBreeds.length !== 0 ? subBreeds.map((subBreed, index) => {
                         return (
                             <tr
                                 key={index}

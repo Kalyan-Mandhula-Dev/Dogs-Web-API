@@ -17,6 +17,7 @@ export default function Breeds() {
     const [selectedBreed, setSelectedBreed] = useState(null);
     const [lastId, setLastId] = useState(0);
     const [hasMore, setHasMore] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const BREEDS_API_URL = import.meta.env.VITE_DOGS_API_URL + "/v1/breeds";
 
@@ -33,6 +34,7 @@ export default function Breeds() {
         console.log("Breeds : ", data)
 
         setBreeds(prev => [...prev, ...data]);
+        setLoading(false);
 
         if (data.length > 0) {
             setLastId(data[data.length - 1].id);
@@ -53,6 +55,7 @@ export default function Breeds() {
 
         const data = await response.json();
         setBreeds(data);
+        setLoading(false);
 
         if (data.length > 0) {
             setLastId(data[data.length - 1].id);
@@ -86,7 +89,13 @@ export default function Breeds() {
                     <th>Action</th>
                 </tr>
                 {
-                    breeds.length !== 0 ? breeds.map((breed, index) => {
+                    loading ? (
+                        <tr>
+                            <td colSpan="4" className="no-breeds-container">
+                                Loading breeds...
+                            </td>
+                        </tr>
+                    ) : breeds.length !== 0 ? breeds.map((breed, index) => {
                         return (
                             <tr
                                 key={index}
