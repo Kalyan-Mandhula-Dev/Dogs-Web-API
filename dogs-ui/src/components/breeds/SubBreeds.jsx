@@ -83,6 +83,7 @@ export default function SubBreeds() {
                                 <td>{subBreed.name}</td>
                                 <td>
                                     {new Date(subBreed.modifiedAt).toLocaleString('en-US', {
+                                        timeZone: 'Asia/Kolkata',
                                         month: 'short',
                                         day: 'numeric',
                                         hour: 'numeric',
