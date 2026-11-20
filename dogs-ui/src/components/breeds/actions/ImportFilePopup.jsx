@@ -46,6 +46,8 @@ export default function ImportFilePopup(props) {
 
             </div>
 
+            <p>Files supported: JSON</p>
+
             <div className="popup-actions">
                 <button className="cancel-btn" onClick={() => props.setShowImportPopUp(false)}>
                     Cancel
