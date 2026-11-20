@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name="sub_breeds")
@@ -28,20 +28,20 @@ public class SubBreed {
     private Breed parentBreed;
 
     @Column(name="created_at")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name="modified_at")
-    private LocalDateTime modifiedAt;
+    private Instant modifiedAt;
 
     @PrePersist
     public void onCreate(){
-        LocalDateTime currentTime = LocalDateTime.now();
+        Instant currentTime = Instant.now();
         createdAt = currentTime;
         modifiedAt =  currentTime;
     }
 
     @PreUpdate
     public void onUpdate(){
-        modifiedAt =  LocalDateTime.now();
+        modifiedAt =  Instant.now();
     }
 }

@@ -4,7 +4,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+
 
 @Getter
 @Setter
@@ -15,6 +16,6 @@ public class SubBreedResponse {
     private Integer version;
     private Long parentBreedId;
     private String parentBreedName;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private Instant createdAt;
+    private Instant modifiedAt;
 }

@@ -6,9 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.hibernate.annotations.OptimisticLock;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,10 +29,10 @@ public class Breed {
     private Integer version;
 
     @Column(name="created_at")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @Column(name="modified_at")
-    private LocalDateTime modifiedAt;
+    private Instant modifiedAt;
 
     @OneToMany(mappedBy="parentBreed")
     @OnDelete(action= OnDeleteAction.CASCADE)
@@ -41,13 +40,13 @@ public class Breed {
 
     @PrePersist
     public void onCreate(){
-        LocalDateTime currentTime = LocalDateTime.now();
+        Instant currentTime = Instant.now();
         createdAt = currentTime;
         modifiedAt =  currentTime;
     }
 
     @PreUpdate
     public void onUpdate(){
-        modifiedAt =  LocalDateTime.now();
+        modifiedAt =  Instant.now();
     }
 }
