@@ -5,6 +5,7 @@ import AddBreedForm from './forms/AddBreedForm';
 import EditBreedForm from './forms/EditBreedForm';
 import DeleteBreedPopup from './actions/DeleteBreedPopup';
 import ImportFilePopup from './actions/ImportFilePopup';
+import ApiService from '../../service/ApiService';
 
 export default function Breeds() {
 
@@ -19,51 +20,51 @@ export default function Breeds() {
     const [hasMore, setHasMore] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const BREEDS_API_URL = import.meta.env.VITE_DOGS_API_URL + "/v1/breeds";
+    const BREEDS_ENDPOINT = "/v1/breeds";
 
 
     const fetchBreeds = async () => {
 
-        console.log(BREEDS_API_URL, lastId);
+        const response = await ApiService.get(BREEDS_ENDPOINT + `?lastId=${lastId}`)
 
-        const response = await fetch(
-            BREEDS_API_URL + `?lastId=${lastId}`
-        );
+        if (response.success) {
 
-        const data = await response.json();
-        console.log("Breeds : ", data)
+            let data = response.data
+            console.log("Breeds : ", data)
 
-        setBreeds(prev => [...prev, ...data]);
-        setLoading(false);
+            setBreeds(prev => [...prev, ...data]);
 
-        if (data.length > 0) {
-            setLastId(data[data.length - 1].id);
-        }
+            if (data.length > 0) {
+                setLastId(data[data.length - 1].id);
+            }
 
-        if (data.length < 10) {
-            setHasMore(false);
+            setHasMore(data.length === 10);
+
         } else {
-            setHasMore(true);
+            console.log("error")
+            alert(response.message);
         }
+
+        setLoading(false);
     };
 
     const refreshBreeds = async () => {
 
-        const response = await fetch(
-            BREEDS_API_URL + `?lastId=0`
-        );
+        const response = await ApiService.get(BREEDS_ENDPOINT + `?lastId=0`)
 
-        const data = await response.json();
-        setBreeds(data);
-        setLoading(false);
+        if (response.success) {
 
-        if (data.length > 0) {
-            setLastId(data[data.length - 1].id);
+            let data = response.data
+            setBreeds(data);
+
+            if (data.length > 0) {
+                setLastId(data[data.length - 1].id);
+            }
+
+            setHasMore(data.length === 10);
         } else {
-            setLastId(0);
+            alert(response.message);
         }
-
-        setHasMore(data.length === 10);
     }
 
     useEffect(() => {
@@ -143,19 +144,19 @@ export default function Breeds() {
             )}
 
             {
-                showEditPopUp && selectedBreed && <EditBreedForm BREEDS_API_URL={BREEDS_API_URL} setShowEditPopUp={setShowEditPopUp} selectedBreed={selectedBreed} setBreeds={setBreeds} />
+                showEditPopUp && selectedBreed && <EditBreedForm BREEDS_ENDPOINT={BREEDS_ENDPOINT} setShowEditPopUp={setShowEditPopUp} selectedBreed={selectedBreed} setBreeds={setBreeds} />
             }
 
             {
-                showConfirmDeletePopUp && selectedBreed && <DeleteBreedPopup BREEDS_API_URL={BREEDS_API_URL} setShowConfirmDeletePopUp={setShowConfirmDeletePopUp} selectedBreed={selectedBreed} setBreeds={setBreeds} />
+                showConfirmDeletePopUp && selectedBreed && <DeleteBreedPopup BREEDS_ENDPOINT={BREEDS_ENDPOINT} setShowConfirmDeletePopUp={setShowConfirmDeletePopUp} selectedBreed={selectedBreed} setBreeds={setBreeds} />
             }
 
             {
-                showAddPopUp && <AddBreedForm BREEDS_API_URL={BREEDS_API_URL} hasMore={hasMore} setShowAddPopUp={setShowAddPopUp} breeds={breeds} setBreeds={setBreeds} />
+                showAddPopUp && <AddBreedForm BREEDS_ENDPOINT={BREEDS_ENDPOINT} hasMore={hasMore} setShowAddPopUp={setShowAddPopUp} breeds={breeds} setBreeds={setBreeds} />
             }
 
             {
-                showImportPopUp && <ImportFilePopup BREEDS_API_URL={BREEDS_API_URL} refreshBreeds={refreshBreeds} setShowImportPopUp={setShowImportPopUp} breeds={breeds} setBreeds={setBreeds} />
+                showImportPopUp && <ImportFilePopup BREEDS_ENDPOINT={BREEDS_ENDPOINT} refreshBreeds={refreshBreeds} setShowImportPopUp={setShowImportPopUp} breeds={breeds} setBreeds={setBreeds} />
             }
         </div>
     </>)

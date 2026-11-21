@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import '../../../styles/popup.css';
 import '../../../styles/add-breed.css';
+import ApiService from '../../../service/ApiService';
 
 export default function AddSubBreedForm(props) {
 
@@ -8,9 +9,6 @@ export default function AddSubBreedForm(props) {
     const [subBreedNameError, setSubBreedNameError] = useState("");
 
     const handleSaveSubBreed = async () => {
-        console.log({
-            name: subBreedName
-        });
 
         if (!subBreedName.trim()) {
             setSubBreedName("");
@@ -18,28 +16,22 @@ export default function AddSubBreedForm(props) {
             return;
         }
 
-        let response = await fetch(`${props.SUBBREEDS_API_URL}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: subBreedName
-            })
-        });
+        const response = await ApiService.post(`${props.SUBBREEDS_ENDPOINT}`, {
+            name: subBreedName
+        })
 
-        console.log(response)
-        let data = await response.json();
-        console.log(data);
 
-        if (response.status === 201) {
+        if (response.success) {
+
+            let data = response.data
+
             if (!props.hasMore) {
                 props.setSubBreeds([...props.subBreeds, data]);
             }
-            // alert("Sub-breed created successfully!!");
+
             props.setShowAddPopUp(false)
         } else {
-            alert(data.message);
+            alert(response.message);
         }
 
         setSubBreedNameError("");

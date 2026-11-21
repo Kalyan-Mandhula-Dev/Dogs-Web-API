@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../../../styles/popup.css';
+import ApiService from '../../../service/ApiService';
 
 export default function EditBreedForm(props) {
 
@@ -11,6 +12,7 @@ export default function EditBreedForm(props) {
     }, [])
 
     const handleSaveBreed = async () => {
+
         console.log({
             name: breedName
         });
@@ -21,27 +23,17 @@ export default function EditBreedForm(props) {
             return;
         }
 
-        let response = await fetch(`${props.BREEDS_API_URL}/${props.selectedBreed.id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: breedName,
-                version: props.selectedBreed.version
-            })
-        });
+        const response = await ApiService.put(`${props.BREEDS_ENDPOINT}/${props.selectedBreed.id}`, {
+            name: breedName,
+            version: props.selectedBreed.version
+        })
 
-        console.log(response)
-        let data = await response.json();
-        console.log(data);
-
-        if (response.status === 200) {
+        if (response.success) {
+            let data = response.data;
             props.setBreeds(prevBreeds => prevBreeds.map(breed => breed.id === data.id ? data : breed));
-            // alert("Breed updated successfully!!");
             props.setShowEditPopUp(false)
         } else {
-            alert(data.message);
+            alert(response.message)
         }
 
         setBreedNameError("");

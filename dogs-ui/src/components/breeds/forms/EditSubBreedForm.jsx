@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../../../styles/popup.css';
+import ApiService from '../../../service/ApiService';
 
 export default function EditSubBreedForm(props) {
 
@@ -11,9 +12,6 @@ export default function EditSubBreedForm(props) {
     }, [])
 
     const handleSaveSubBreed = async () => {
-        console.log({
-            name: subBreedName
-        });
 
         if (!subBreedName.trim()) {
             setSubBreedName("");
@@ -21,27 +19,18 @@ export default function EditSubBreedForm(props) {
             return;
         }
 
-        let response = await fetch(`${props.SUBBREEDS_API_URL}/${props.selectedSubBreed.id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: subBreedName,
-                version: props.selectedSubBreed.version
-            })
+        const response = await ApiService.put(`${props.SUBBREEDS_ENDPOINT}/${props.selectedSubBreed.id}`, {
+            name: subBreedName,
+            version: props.selectedSubBreed.version
         });
 
-        console.log(response)
-        let data = await response.json();
-        console.log(data);
-
-        if (response.status === 200) {
+        if (response.success) {
+            let data = response.data
             props.setSubBreeds(prevSubBreeds => prevSubBreeds.map(subBreed => subBreed.id === data.id ? data : subBreed));
             // alert("Sub-breed updated successfully!!");
             props.setShowEditPopUp(false)
         } else {
-            alert(data.message);
+            alert(response.message);
         }
 
         setSubBreedNameError("");

@@ -1,24 +1,19 @@
 import '../../../styles/popup.css';
 import '../../../styles/delete-breed.css';
+import ApiService from '../../../service/ApiService';
 
 export default function DeleteSubBreedPopup(props) {
 
     const handleDeleteSubBreed = async () => {
 
-        let response = await fetch(`${props.SUBBREEDS_API_URL}/${props.selectedSubBreed.id}`, {
-            method: "DELETE"
-        });
+        let response = await ApiService.delete(`${props.SUBBREEDS_ENDPOINT}/${props.selectedSubBreed.id}`);
 
-        console.log(response)
-
-        if (response.status === 204) {
+        if (response.success) {
             props.setSubBreeds(prevSubBreeds => prevSubBreeds.filter(subBreed => subBreed.id !== props.selectedSubBreed.id));
-            // alert("Sub-breed deleted successfully!!");
-            props.setShowConfirmDeletePopUp(false)
         } else {
-            alert(data.message);
+            alert(response.message);
         }
-
+        props.setShowConfirmDeletePopUp(false)
     };
 
     return (<><div className="action-popup">

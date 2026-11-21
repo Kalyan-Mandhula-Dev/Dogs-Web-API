@@ -5,6 +5,7 @@ import EditSubBreedForm from "./forms//EditSubBreedForm";
 import DeleteSubBreedPopup from "./actions//DeleteSubBreedPopup";
 import AddSubBreedForm from "./forms/AddSubBreedForm";
 import { useNavigate } from "react-router";
+import ApiService from "../../service/ApiService";
 
 
 
@@ -22,28 +23,32 @@ export default function SubBreeds() {
     const [hasMore, setHasMore] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const SUBBREEDS_API_URL = import.meta.env.VITE_DOGS_API_URL + `/v1/breeds/${breedId}/subbreeds`;
+    const SUBBREEDS_ENDPOINT = `/v1/breeds/${breedId}/subbreeds`;
     const navigate = useNavigate();
 
     const fetchSubBreeds = async () => {
 
-        console.log(SUBBREEDS_API_URL, lastId);
+        const response = await ApiService.get(SUBBREEDS_ENDPOINT + `?lastId=${lastId}`)
 
-        const response = await fetch(
-            SUBBREEDS_API_URL + `?lastId=${lastId}`
-        );
+        if (response.success) {
 
-        const data = await response.json();
-        console.log("sub-breeds : ", data)
+            let data = response.data
+            console.log("sub-breeds : ", data)
 
-        setSubBreeds(prev => [...prev, ...data]);
-        setLoading(false);
+            setSubBreeds(prev => [...prev, ...data]);
 
-        if (data.length > 0) {
-            setLastId(data[data.length - 1].id);
+            if (data.length > 0) {
+                setLastId(data[data.length - 1].id);
+            }
+
+            setHasMore(data.length === 10);
+
+        } else {
+            console.log("error")
+            alert(response.message);
         }
 
-        setHasMore(data.length === 10);
+        setLoading(false);
     };
 
     useEffect(() => {
@@ -120,15 +125,15 @@ export default function SubBreeds() {
             )}
 
             {
-                showEditPopUp && selectedSubBreed && <EditSubBreedForm SUBBREEDS_API_URL={SUBBREEDS_API_URL} setShowEditPopUp={setShowEditPopUp} selectedSubBreed={selectedSubBreed} setSubBreeds={setSubBreeds} />
+                showEditPopUp && selectedSubBreed && <EditSubBreedForm SUBBREEDS_ENDPOINT={SUBBREEDS_ENDPOINT} setShowEditPopUp={setShowEditPopUp} selectedSubBreed={selectedSubBreed} setSubBreeds={setSubBreeds} />
             }
 
             {
-                showConfirmDeletePopUp && selectedSubBreed && <DeleteSubBreedPopup SUBBREEDS_API_URL={SUBBREEDS_API_URL} setShowConfirmDeletePopUp={setShowConfirmDeletePopUp} selectedSubBreed={selectedSubBreed} setSubBreeds={setSubBreeds} />
+                showConfirmDeletePopUp && selectedSubBreed && <DeleteSubBreedPopup SUBBREEDS_ENDPOINT={SUBBREEDS_ENDPOINT} setShowConfirmDeletePopUp={setShowConfirmDeletePopUp} selectedSubBreed={selectedSubBreed} setSubBreeds={setSubBreeds} />
             }
 
             {
-                showAddPopUp && <AddSubBreedForm SUBBREEDS_API_URL={SUBBREEDS_API_URL} hasMore={hasMore} setShowAddPopUp={setShowAddPopUp} subBreeds={subBreeds} setSubBreeds={setSubBreeds} />
+                showAddPopUp && <AddSubBreedForm SUBBREEDS_ENDPOINT={SUBBREEDS_ENDPOINT} hasMore={hasMore} setShowAddPopUp={setShowAddPopUp} subBreeds={subBreeds} setSubBreeds={setSubBreeds} />
             }
         </div>
     </>)

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import '../../../styles/popup.css';
 import '../../../styles/add-breed.css';
+import ApiService from '../../../service/ApiService';
 
 export default function AddBreedForm(props) {
 
@@ -27,6 +28,7 @@ export default function AddBreedForm(props) {
     };
 
     const handleSaveBreed = async () => {
+
         console.log({
             name: breedName,
             subBreeds: subBreeds
@@ -38,29 +40,23 @@ export default function AddBreedForm(props) {
             return;
         }
 
-        let response = await fetch(`${props.BREEDS_API_URL}`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: breedName,
-                subBreeds: subBreeds
-            })
-        });
+        const response = await ApiService.post(props.BREEDS_ENDPOINT, {
+            name: breedName,
+            subBreeds: subBreeds
+        })
 
-        console.log(response)
-        let data = await response.json();
-        console.log(data);
+        if (response.success) {
 
-        if (response.status === 201) {
+            let data = response.data
+
             if (!props.hasMore) {
                 props.setBreeds([...props.breeds, data]);
             }
-            // alert("Breed created successfully!!");
+
             props.setShowAddPopUp(false)
+
         } else {
-            alert(data.message);
+            alert(response.message)
         }
 
         setBreedNameError("");

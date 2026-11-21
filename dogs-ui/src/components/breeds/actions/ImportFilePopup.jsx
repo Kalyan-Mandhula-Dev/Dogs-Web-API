@@ -1,5 +1,6 @@
 import { useState } from "react"
 import '../../../styles/popup.css';
+import ApiService from "../../../service/ApiService";
 
 
 export default function ImportFilePopup(props) {
@@ -10,24 +11,17 @@ export default function ImportFilePopup(props) {
 
         if (!file) return;
 
-        console.log("importing breeds", file);
         let formData = new FormData();
         formData.append("file", file);
 
-        let response = await fetch(`${props.BREEDS_API_URL}/import`, {
-            method: "POST",
-            body: formData
-        })
+        let response = await ApiService.post(`${props.BREEDS_ENDPOINT}/import`, formData)
 
-        console.log(response)
-        let data = await response.json();
-        console.log(data);
-
-        if (response.status === 201) {
+        if (response.success) {
+            let data = response.data
             alert("Breeds imported successfully!!")
             await props.refreshBreeds();
         } else {
-            alert(data.message);
+            alert(response.message)
         }
 
         props.setShowImportPopUp(false);

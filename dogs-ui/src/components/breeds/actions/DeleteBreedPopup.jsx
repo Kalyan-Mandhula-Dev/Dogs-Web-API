@@ -1,24 +1,19 @@
 import '../../../styles/popup.css';
 import '../../../styles/delete-breed.css';
+import ApiService from '../../../service/ApiService';
 
 export default function DeleteBreedPopup(props) {
 
     const handleDeleteBreed = async () => {
 
-        let response = await fetch(`${props.BREEDS_API_URL}/${props.selectedBreed.id}`, {
-            method: "DELETE"
-        });
+        const response = await ApiService.delete(`${props.BREEDS_ENDPOINT}/${props.selectedBreed.id}`)
 
-        console.log(response)
-
-        if (response.status === 204) {
+        if (response.success) {
             props.setBreeds(prevBreeds => prevBreeds.filter(breed => breed.id !== props.selectedBreed.id));
-            // alert("Breed deleted successfully!!");
             props.setShowConfirmDeletePopUp(false)
         } else {
-            alert(data.message);
+            alert(response.message)
         }
-
     };
 
     return (<><div className="action-popup">
