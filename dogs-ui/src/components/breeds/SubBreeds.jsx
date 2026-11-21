@@ -13,7 +13,7 @@ export default function SubBreeds() {
 
     const { breedId } = useParams();
     const location = useLocation();
-    const breedName = location.state?.breedName;
+    const [breedName, setBreedName] = useState(location.state?.breedName)
     const [subBreeds, setSubBreeds] = useState([])
     const [selectedSubBreed, setSelectedSubBreed] = useState(null);
     const [showEditPopUp, setShowEditPopUp] = useState(false);
@@ -22,9 +22,12 @@ export default function SubBreeds() {
     const [lastId, setLastId] = useState(0);
     const [hasMore, setHasMore] = useState(false);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     const SUBBREEDS_ENDPOINT = `/v1/breeds/${breedId}/subbreeds`;
-    const navigate = useNavigate();
+    const BREEDS_ENDPOINT = "/v1/breeds";
+
+
 
     const fetchSubBreeds = async () => {
 
@@ -46,6 +49,13 @@ export default function SubBreeds() {
         } else {
             console.log("error")
             alert(response.message);
+        }
+
+        const breedResponse = await ApiService.get(BREEDS_ENDPOINT + `/${breedId}`)
+
+        if (breedResponse.success) {
+            let breed = breedResponse.data;
+            setBreedName(breed.name)
         }
 
         setLoading(false);
@@ -88,7 +98,6 @@ export default function SubBreeds() {
                                 <td>{subBreed.name}</td>
                                 <td>
                                     {new Date(subBreed.modifiedAt).toLocaleString('en-US', {
-                                        timeZone: 'Asia/Kolkata',
                                         month: 'short',
                                         day: 'numeric',
                                         hour: 'numeric',

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -148,7 +148,7 @@ public class GlobalExceptionHandler {
         errorMap.put("message", message);
         errorMap.put("status", status.value());
         errorMap.put("error", status.getReasonPhrase());
-        errorMap.put("timestamp", LocalDateTime.now().toString());
+        errorMap.put("timestamp", Instant.now().toString());
         return new ResponseEntity<>(errorMap, status);
     }
 }
