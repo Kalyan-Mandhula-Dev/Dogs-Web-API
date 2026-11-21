@@ -31,6 +31,7 @@ public class SubBreedService {
 
     @Transactional(readOnly = true)
     public List<SubBreedResponse> getSubBreeds(Long breedId, Long lastId) {
+        findBreedById(breedId);
         List<SubBreed> subBreeds = subBreedRepository.findTop10ByParentBreed_IdAndIdGreaterThanOrderByIdAsc(breedId, lastId);
         return subBreeds.stream().map(this::mapToResponse).toList();
     }

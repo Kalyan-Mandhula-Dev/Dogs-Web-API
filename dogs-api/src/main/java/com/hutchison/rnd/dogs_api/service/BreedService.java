@@ -100,6 +100,11 @@ public class BreedService {
             return breeds.entrySet().stream().map((entry) -> {
 
                 String name = entry.getKey();
+
+                if (name != null) {
+                    name = name.trim();
+                }
+
                 List<String> subBreeds = entry.getValue();
 
                 if (name == null || name.isBlank()) {
@@ -111,6 +116,10 @@ public class BreedService {
                 }
 
                 if (subBreeds != null) {
+
+                    subBreeds = subBreeds.stream()
+                            .map(sub -> sub == null ? null : sub.trim())
+                            .toList();
 
                     for (String sub : subBreeds) {
                         if (sub == null || sub.isBlank()) {
