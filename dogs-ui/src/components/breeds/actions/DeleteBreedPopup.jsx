@@ -10,10 +10,10 @@ export default function DeleteBreedPopup(props) {
 
         if (response.success) {
             props.setBreeds(prevBreeds => prevBreeds.filter(breed => breed.id !== props.selectedBreed.id));
-            props.setShowConfirmDeletePopUp(false)
         } else {
             alert(response.message)
         }
+        props.setShowConfirmDeletePopUp(false)
     };
 
     return (<><div className="action-popup">

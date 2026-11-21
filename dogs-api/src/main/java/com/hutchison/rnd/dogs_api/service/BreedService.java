@@ -41,7 +41,7 @@ public class BreedService {
 
     public BreedResponse getBreedById(Long id) {
         Breed breed = breedRepository.findByIdWithSubBreeds(id).orElseThrow(
-                () -> new BreedNotFoundException(String.format("Breed not found with id: %s", id))
+                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
         );
         return mapToResponse(breed);
     }
@@ -79,11 +79,11 @@ public class BreedService {
     @Transactional
     public BreedResponse updateBreed(Long id, UpdateBreedRequest updateBreedRequest) {
         Breed breed = breedRepository.findByIdWithSubBreeds(id).orElseThrow(
-                () -> new BreedNotFoundException(String.format("Breed not found with id: %s", id))
+                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
         );
 
         if (!Objects.equals(breed.getVersion(), updateBreedRequest.getVersion())) {
-            throw new BreedVersionConflictException("Breed was modified by another user, please refresh and try again!!");
+            throw new BreedVersionConflictException("Breed was modified by another user, please refresh and try again");
         }
 
         try {
@@ -102,7 +102,7 @@ public class BreedService {
     @Transactional
     public void deleteBreed(Long id) {
         Breed breed = breedRepository.findById(id).orElseThrow(
-                () -> new BreedNotFoundException(String.format("Breed not found with id: %s", id))
+                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
         );
         breedRepository.delete(breed);
     }
@@ -122,16 +122,16 @@ public class BreedService {
                 List<String> subBreeds = entry.getValue();
 
                 if (name == null || name.isBlank()) {
-                    throw new InvalidImportFileException("Breed name cannot be blank!!");
+                    throw new InvalidImportFileException("Breed name cannot be blank");
                 }
 
                 if (name.length() > 100) {
-                    throw new InvalidImportFileException("Breed name cannot exceed 100 characters!!");
+                    throw new InvalidImportFileException("Breed name cannot exceed 100 characters");
                 }
 
                 if (subBreeds != null && subBreeds.stream()
                         .anyMatch(sub -> sub == null || sub.isBlank())) {
-                    throw new InvalidImportFileException("Sub-breed names cannot be blank!!");
+                    throw new InvalidImportFileException("Sub-breed names cannot be blank");
                 }
 
                 CreateBreedRequest request = new CreateBreedRequest();

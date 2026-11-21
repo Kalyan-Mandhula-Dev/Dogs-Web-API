@@ -38,20 +38,20 @@ public class SubBreedService {
 
     private SubBreed findSubBreedById(Long id) {
         return subBreedRepository.findById(id).orElseThrow(
-                () -> new SubBreedNotFoundException(String.format("Sub-breed not found with id: %s", id))
+                () -> new SubBreedNotFoundException("The requested sub-breed does not exist, please refresh and try again")
         );
     }
 
     private Breed findBreedById(Long breedId) {
         return breedRepository.findById(breedId).orElseThrow(
-                () -> new BreedNotFoundException(String.format("Breed not found with id: %s", breedId))
+                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
         );
     }
 
     private SubBreed findSubBreedForBreed(Long breedId, Long id){
         SubBreed subBreed = findSubBreedById(id);
         if(!breedId.equals(subBreed.getParentBreed().getId())){
-            throw new SubBreedNotFoundException(String.format("Sub-breed with id %s not found under breed with id %s", id, breedId));
+            throw new SubBreedNotFoundException("Sub-breed not found under the specified breed");
         }
         return subBreed;
     }
@@ -89,7 +89,7 @@ public class SubBreedService {
         long distinctSubBreedsCount = subBreedsNames.stream().map(String::toLowerCase).distinct().count();
 
         if (distinctSubBreedsCount != subBreedsNames.size()) {
-            throw new DuplicateSubBreedsFoundException("Duplicate sub-breeds found!!");
+            throw new DuplicateSubBreedsFoundException("Duplicate sub-breeds found");
         }
 
         List<SubBreed> subBreedsToSave = new ArrayList<>();
@@ -109,7 +109,7 @@ public class SubBreedService {
         SubBreed subBreed = findSubBreedForBreed(breedId, id);
 
         if (!Objects.equals(subBreed.getVersion(), updateSubBreedRequest.getVersion())) {
-            throw new SubBreedVersionConflictException("Sub-breed modified by another user, please refresh and try again!!");
+            throw new SubBreedVersionConflictException("Sub-breed modified by another user, please refresh and try again");
         }
 
         try {

@@ -31,11 +31,11 @@ export default function EditBreedForm(props) {
         if (response.success) {
             let data = response.data;
             props.setBreeds(prevBreeds => prevBreeds.map(breed => breed.id === data.id ? data : breed));
-            props.setShowEditPopUp(false)
         } else {
             alert(response.message)
         }
 
+        props.setShowEditPopUp(false)
         setBreedNameError("");
     };
 

@@ -27,12 +27,11 @@ export default function EditSubBreedForm(props) {
         if (response.success) {
             let data = response.data
             props.setSubBreeds(prevSubBreeds => prevSubBreeds.map(subBreed => subBreed.id === data.id ? data : subBreed));
-            // alert("Sub-breed updated successfully!!");
-            props.setShowEditPopUp(false)
         } else {
             alert(response.message);
         }
 
+        props.setShowEditPopUp(false)
         setSubBreedNameError("");
     };
 
