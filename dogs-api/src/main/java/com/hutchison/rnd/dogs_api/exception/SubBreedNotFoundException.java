@@ -1,7 +1,7 @@
 package com.hutchison.rnd.dogs_api.exception;
 
 public class SubBreedNotFoundException extends RuntimeException {
-    public SubBreedNotFoundException(String message) {
-        super(message);
+    public SubBreedNotFoundException() {
+        super();
     }
 }

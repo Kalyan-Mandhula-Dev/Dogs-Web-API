@@ -32,27 +32,23 @@ public class SubBreedService {
     }
 
     @Transactional(readOnly = true)
-    public List<SubBreedResponse> getSubBreeds(Long breedId, Long lastId){
+    public List<SubBreedResponse> getSubBreeds(Long breedId, Long lastId) {
         List<SubBreed> subBreeds = subBreedRepository.findTop10ByParentBreed_IdAndIdGreaterThanOrderByIdAsc(breedId, lastId);
         return subBreeds.stream().map(this::mapToResponse).toList();
     }
 
     private SubBreed findSubBreedById(Long id) {
-        return subBreedRepository.findById(id).orElseThrow(
-                () -> new SubBreedNotFoundException("The requested sub-breed does not exist, please refresh and try again")
-        );
+        return subBreedRepository.findById(id).orElseThrow(SubBreedNotFoundException::new);
     }
 
     private Breed findBreedById(Long breedId) {
-        return breedRepository.findById(breedId).orElseThrow(
-                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
-        );
+        return breedRepository.findById(breedId).orElseThrow(BreedNotFoundException::new);
     }
 
-    private SubBreed findSubBreedForBreed(Long breedId, Long id){
+    private SubBreed findSubBreedForBreed(Long breedId, Long id) {
         SubBreed subBreed = findSubBreedById(id);
-        if(!breedId.equals(subBreed.getParentBreed().getId())){
-            throw new SubBreedNotFoundException("Sub-breed not found under the specified breed");
+        if (!breedId.equals(subBreed.getParentBreed().getId())) {
+            throw new SubBreedNotFoundUnderBreedException();
         }
         return subBreed;
     }
@@ -68,18 +64,11 @@ public class SubBreedService {
 
         Breed breed = findBreedById(breedId);
 
-        try {
-            SubBreed subBreed = new SubBreed();
-            subBreed.setName(createSubBreedRequest.getName());
-            subBreed.setParentBreed(breed);
-            subBreedRepository.saveAndFlush(subBreed);
-            return mapToResponse(subBreed);
-        } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
-                throw new SubBreedAlreadyExistsException(String.format("Sub-breed with name %s already exists", createSubBreedRequest.getName()));
-            }
-            throw ex;
-        }
+        SubBreed subBreed = new SubBreed();
+        subBreed.setName(createSubBreedRequest.getName());
+        subBreed.setParentBreed(breed);
+        subBreedRepository.saveAndFlush(subBreed);
+        return mapToResponse(subBreed);
     }
 
     @Transactional
@@ -90,7 +79,7 @@ public class SubBreedService {
         long distinctSubBreedsCount = subBreedsNames.stream().map(String::toLowerCase).distinct().count();
 
         if (distinctSubBreedsCount != subBreedsNames.size()) {
-            throw new DuplicateSubBreedsFoundException("Duplicate sub-breeds found");
+            throw new DuplicateSubBreedsFoundException();
         }
 
         List<SubBreed> subBreedsToSave = new ArrayList<>();
@@ -110,24 +99,16 @@ public class SubBreedService {
         SubBreed subBreed = findSubBreedForBreed(breedId, id);
 
         if (!Objects.equals(subBreed.getVersion(), updateSubBreedRequest.getVersion())) {
-            throw new SubBreedVersionConflictException("Sub-breed modified by another user, please refresh and try again");
+            throw new SubBreedVersionConflictException();
         }
 
-        try {
-            subBreed.setName(updateSubBreedRequest.getName());
-            subBreedRepository.saveAndFlush(subBreed);
-            return mapToResponse(subBreed);
-        } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
-                throw new SubBreedAlreadyExistsException(String.format("Sub-breed with name %s already exists", updateSubBreedRequest.getName()));
-            }
-
-            throw ex;
-        }
+        subBreed.setName(updateSubBreedRequest.getName());
+        subBreedRepository.saveAndFlush(subBreed);
+        return mapToResponse(subBreed);
     }
 
     @Transactional
-    public void deleteSubBreed(Long breedId,Long id) {
+    public void deleteSubBreed(Long breedId, Long id) {
         SubBreed subBreed = findSubBreedForBreed(breedId, id);
         subBreedRepository.delete(subBreed);
     }

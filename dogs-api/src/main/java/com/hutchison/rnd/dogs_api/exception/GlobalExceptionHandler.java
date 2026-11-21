@@ -1,6 +1,8 @@
 package com.hutchison.rnd.dogs_api.exception;
 
+import com.hutchison.rnd.dogs_api.constant.DatabaseConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,7 +25,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericExceptions(Exception ex){
-        log.error("Exception occured!!", ex);
+        log.error("Exception occurred!!", ex);
 
         if (ex instanceof MethodArgumentTypeMismatchException ||
                 ex instanceof HttpMessageNotReadableException) {
@@ -43,22 +45,17 @@ public class GlobalExceptionHandler {
         return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong!!");
     }
 
-    @ExceptionHandler(BreedAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleBreedAlreadyExistsException(BreedAlreadyExistsException ex){
-        log.warn("Breed already exists!!", ex);
-        return buildError(HttpStatus.CONFLICT, ex.getMessage());
-    }
 
     @ExceptionHandler(BreedNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleBreedNotFoundException(BreedNotFoundException ex){
         log.warn("Breed not found!!", ex);
-        return buildError(HttpStatus.NOT_FOUND, ex.getMessage());
+        return buildError(HttpStatus.NOT_FOUND, "The requested breed does not exist, please refresh and try again");
     }
 
     @ExceptionHandler(BreedVersionConflictException.class)
     public ResponseEntity<Map<String, Object>> handleBreedVersionConflictException(BreedVersionConflictException ex){
         log.warn("Breed was modified by another user, please refresh and try again!!", ex);
-        return buildError(HttpStatus.CONFLICT, ex.getMessage());
+        return buildError(HttpStatus.CONFLICT, "Breed was modified by another user, please refresh and try again");
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
@@ -69,32 +66,64 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException(DataIntegrityViolationException ex){
-        log.warn("Something went wrong!!", ex);
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR,"Something went wrong!!");
+        log.warn("Data integrity violation", ex);
+
+        String constraintName = getConstraintName(ex);
+
+
+        if (constraintName != null && constraintName.toLowerCase().contains(DatabaseConstants.UNIQUE_BREED)) {
+            return buildError(
+                    HttpStatus.CONFLICT,
+                    "Breed already exists"
+            );
+        }
+
+        if (constraintName != null && constraintName.toLowerCase().contains(DatabaseConstants.UNIQUE_SUB_BREED)) {
+            return buildError(
+                    HttpStatus.CONFLICT,
+                    "Sub-breed already exists"
+            );
+        }
+
+        return buildError(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "Something went wrong!!"
+        );
     }
 
-    @ExceptionHandler(SubBreedAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleSubBreedAlreadyExistsException(SubBreedAlreadyExistsException ex){
-        log.warn("Sub-breed already exists!!", ex);
-        return buildError(HttpStatus.CONFLICT, ex.getMessage());
+    private String getConstraintName(Throwable ex) {
+        while (ex != null) {
+            if (ex instanceof ConstraintViolationException cve) {
+                return cve.getConstraintName();
+            }
+            ex = ex.getCause();
+        }
+        return null;
+    }
+
+
+    @ExceptionHandler(SubBreedNotFoundUnderBreedException.class)
+    public ResponseEntity<Map<String, Object>> handleSubBreedNotFoundUnderBreedException(SubBreedNotFoundUnderBreedException ex){
+        log.warn("Sub-breed not found under breed!!", ex);
+        return buildError(HttpStatus.NOT_FOUND, "Sub-breed not found under the specified breed");
     }
 
     @ExceptionHandler(SubBreedNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleSubBreedNotFoundException(SubBreedNotFoundException ex){
         log.warn("Sub-breed not found!!", ex);
-        return buildError(HttpStatus.NOT_FOUND, ex.getMessage());
+        return buildError(HttpStatus.NOT_FOUND, "The requested sub-breed does not exist, please refresh and try again");
     }
 
     @ExceptionHandler(SubBreedVersionConflictException.class)
     public ResponseEntity<Map<String, Object>> handleSubBreedVersionConflictException(SubBreedVersionConflictException ex){
         log.warn("Sub-breed was modified by another user, please refresh and try again!!", ex);
-        return buildError(HttpStatus.CONFLICT, ex.getMessage());
+        return buildError(HttpStatus.CONFLICT, "Sub-breed modified by another user, please refresh and try again");
     }
 
     @ExceptionHandler(DuplicateSubBreedsFoundException.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateSubBreedsFoundException(DuplicateSubBreedsFoundException ex){
         log.warn("Duplicate Sub-breeds found!!", ex);
-        return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return buildError(HttpStatus.BAD_REQUEST, "Duplicate sub-breeds found");
     }
 
     @ExceptionHandler(InvalidImportFileException.class)

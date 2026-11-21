@@ -1,6 +1,5 @@
 package com.hutchison.rnd.dogs_api.service;
 
-import org.springframework.web.bind.annotation.RequestParam;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 import com.hutchison.rnd.dogs_api.dto.request.CreateBreedRequest;
@@ -8,14 +7,11 @@ import com.hutchison.rnd.dogs_api.dto.request.UpdateBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.response.BreedResponse;
 import com.hutchison.rnd.dogs_api.entity.Breed;
 import com.hutchison.rnd.dogs_api.entity.SubBreed;
-import com.hutchison.rnd.dogs_api.exception.BreedAlreadyExistsException;
 import com.hutchison.rnd.dogs_api.exception.BreedNotFoundException;
 import com.hutchison.rnd.dogs_api.exception.BreedVersionConflictException;
 import com.hutchison.rnd.dogs_api.exception.InvalidImportFileException;
 import com.hutchison.rnd.dogs_api.repository.BreedRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,9 +36,7 @@ public class BreedService {
     }
 
     public BreedResponse getBreedById(Long id) {
-        Breed breed = breedRepository.findByIdWithSubBreeds(id).orElseThrow(
-                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
-        );
+        Breed breed = breedRepository.findByIdWithSubBreeds(id).orElseThrow(BreedNotFoundException::new);
         return mapToResponse(breed);
     }
 
@@ -56,55 +50,36 @@ public class BreedService {
 
     @Transactional
     public BreedResponse createBreed(CreateBreedRequest createBreedRequest) {
-        try {
-            Breed breed = new Breed();
-            breed.setName(createBreedRequest.getName());
-            breedRepository.saveAndFlush(breed);
+        Breed breed = new Breed();
+        breed.setName(createBreedRequest.getName());
+        breedRepository.saveAndFlush(breed);
 
-            List<SubBreed> subBreeds = new ArrayList<>();
-            if (createBreedRequest.getSubBreeds() != null && !createBreedRequest.getSubBreeds().isEmpty()) {
-                subBreeds = subBreedService.createSubBreeds(breed.getId(), createBreedRequest.getSubBreeds());
-            }
-
-            BreedResponse breedResponse = mapToResponse(breed);
-            breedResponse.setSubBreeds(subBreeds.stream().map(SubBreed::getName).toList());
-            return breedResponse;
-        } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
-                throw new BreedAlreadyExistsException(String.format("Breed with name %s already exists", createBreedRequest.getName()));
-            }
-            throw ex;
+        List<SubBreed> subBreeds = new ArrayList<>();
+        if (createBreedRequest.getSubBreeds() != null && !createBreedRequest.getSubBreeds().isEmpty()) {
+            subBreeds = subBreedService.createSubBreeds(breed.getId(), createBreedRequest.getSubBreeds());
         }
+
+        BreedResponse breedResponse = mapToResponse(breed);
+        breedResponse.setSubBreeds(subBreeds.stream().map(SubBreed::getName).toList());
+        return breedResponse;
     }
 
     @Transactional
     public BreedResponse updateBreed(Long id, UpdateBreedRequest updateBreedRequest) {
-        Breed breed = breedRepository.findByIdWithSubBreeds(id).orElseThrow(
-                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
-        );
+        Breed breed = breedRepository.findByIdWithSubBreeds(id).orElseThrow(BreedNotFoundException::new);
 
         if (!Objects.equals(breed.getVersion(), updateBreedRequest.getVersion())) {
-            throw new BreedVersionConflictException("Breed was modified by another user, please refresh and try again");
+            throw new BreedVersionConflictException();
         }
 
-        try {
-            breed.setName(updateBreedRequest.getName());
-            breedRepository.saveAndFlush(breed);
-            return mapToResponse(breed);
-        } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
-                throw new BreedAlreadyExistsException(String.format("Breed with name %s already exists", updateBreedRequest.getName()));
-            }
-
-            throw ex;
-        }
+        breed.setName(updateBreedRequest.getName());
+        breedRepository.saveAndFlush(breed);
+        return mapToResponse(breed);
     }
 
     @Transactional
     public void deleteBreed(Long id) {
-        Breed breed = breedRepository.findById(id).orElseThrow(
-                () -> new BreedNotFoundException("The requested breed does not exist, please refresh and try again")
-        );
+        Breed breed = breedRepository.findById(id).orElseThrow(BreedNotFoundException::new);
         breedRepository.delete(breed);
     }
 
