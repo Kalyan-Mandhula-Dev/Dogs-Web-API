@@ -46,6 +46,7 @@ public class BreedService {
         return mapToResponse(breed);
     }
 
+    @Transactional(readOnly = true)
     public List<BreedResponse> getBreeds(Long lastId) {
         List<Breed> breeds = breedRepository.findTop10ByIdGreaterThanOrderByIdAsc(lastId);
         List<Long> breedIds = breeds.stream().map(Breed::getId).toList();
