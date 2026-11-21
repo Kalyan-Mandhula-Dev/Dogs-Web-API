@@ -34,15 +34,19 @@ export default function AddBreedForm(props) {
             subBreeds: subBreeds
         });
 
-        if (!breedName.trim()) {
+        const trimmedBreedName = breedName.trim();
+
+        if (!trimmedBreedName) {
             setBreedName("");
             setBreedNameError("Breed name cannot be blank!!");
             return;
         }
 
+        const trimmedSubBreeds = subBreeds.map(sub => sub.trim());
+
         const response = await ApiService.post(props.BREEDS_ENDPOINT, {
-            name: breedName,
-            subBreeds: subBreeds
+            name: trimmedBreedName,
+            subBreeds: trimmedSubBreeds
         })
 
         if (response.success) {

@@ -17,14 +17,16 @@ export default function EditBreedForm(props) {
             name: breedName
         });
 
-        if (!breedName.trim()) {
+        const trimmedBreedName = breedName.trim();
+
+        if (!trimmedBreedName) {
             setBreedName("")
             setBreedNameError("Breed name cannot be blank!!");
             return;
         }
 
         const response = await ApiService.put(`${props.BREEDS_ENDPOINT}/${props.selectedBreed.id}`, {
-            name: breedName,
+            name: trimmedBreedName,
             version: props.selectedBreed.version
         })
 

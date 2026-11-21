@@ -13,14 +13,16 @@ export default function EditSubBreedForm(props) {
 
     const handleSaveSubBreed = async () => {
 
-        if (!subBreedName.trim()) {
+        const trimmedSubBreedName = subBreedName.trim();
+
+        if (!trimmedSubBreedName) {
             setSubBreedName("");
             setSubBreedNameError("Sub-breed name cannot be blank!!");
             return;
         }
 
         const response = await ApiService.put(`${props.SUBBREEDS_ENDPOINT}/${props.selectedSubBreed.id}`, {
-            name: subBreedName,
+            name: trimmedSubBreedName,
             version: props.selectedSubBreed.version
         });
 
