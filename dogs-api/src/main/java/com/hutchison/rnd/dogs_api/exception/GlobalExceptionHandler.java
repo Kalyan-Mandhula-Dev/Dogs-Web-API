@@ -5,11 +5,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -22,6 +24,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericExceptions(Exception ex){
         log.error("Exception occured!!", ex);
+
+        if (ex instanceof MethodArgumentTypeMismatchException ||
+                ex instanceof HttpMessageNotReadableException) {
+
+            return buildError(HttpStatus.BAD_REQUEST, "Invalid request");
+        }
 
         if (ex instanceof ErrorResponse errorResponse) {
             HttpStatusCode status = errorResponse.getStatusCode();
@@ -61,8 +69,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrityViolationException(DataIntegrityViolationException ex){
-        log.warn("Breed conflicts with existing breed!!", ex);
-        return buildError(HttpStatus.CONFLICT, "The data conflicts with the existing record!!");
+        log.warn("Something went wrong!!", ex);
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR,"Something went wrong!!");
     }
 
     @ExceptionHandler(SubBreedAlreadyExistsException.class)

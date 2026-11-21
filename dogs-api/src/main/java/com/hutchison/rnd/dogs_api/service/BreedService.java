@@ -69,7 +69,7 @@ public class BreedService {
             breedResponse.setSubBreeds(subBreeds.stream().map(SubBreed::getName).toList());
             return breedResponse;
         } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && "breeds.unique_breed_idx".equalsIgnoreCase(cvex.getConstraintName())) {
+            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
                 throw new BreedAlreadyExistsException(String.format("Breed with name %s already exists", createBreedRequest.getName()));
             }
             throw ex;
@@ -91,7 +91,7 @@ public class BreedService {
             breedRepository.saveAndFlush(breed);
             return mapToResponse(breed);
         } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && "breeds.unique_breed_idx".equalsIgnoreCase(cvex.getConstraintName())) {
+            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
                 throw new BreedAlreadyExistsException(String.format("Breed with name %s already exists", updateBreedRequest.getName()));
             }
 
@@ -129,9 +129,17 @@ public class BreedService {
                     throw new InvalidImportFileException("Breed name cannot exceed 100 characters");
                 }
 
-                if (subBreeds != null && subBreeds.stream()
-                        .anyMatch(sub -> sub == null || sub.isBlank())) {
-                    throw new InvalidImportFileException("Sub-breed names cannot be blank");
+                if (subBreeds != null) {
+
+                    for (String sub : subBreeds) {
+                        if (sub == null || sub.isBlank()) {
+                            throw new InvalidImportFileException("Sub-breed names cannot be blank");
+                        }
+
+                        if (sub.length() > 100) {
+                            throw new InvalidImportFileException("Sub-breed name cannot exceed 100 characters");
+                        }
+                    }
                 }
 
                 CreateBreedRequest request = new CreateBreedRequest();

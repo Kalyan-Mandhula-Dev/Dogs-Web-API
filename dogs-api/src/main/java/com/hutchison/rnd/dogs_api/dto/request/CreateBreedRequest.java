@@ -15,5 +15,5 @@ public class CreateBreedRequest {
     @NotBlank
     @Size(max = 100)
     private String name;
-    private List<@NotBlank String> subBreeds;
+    private List<@NotBlank @Size(max=100) String> subBreeds;
 }

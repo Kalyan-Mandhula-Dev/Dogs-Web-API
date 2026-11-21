@@ -74,7 +74,7 @@ public class SubBreedService {
             subBreedRepository.saveAndFlush(subBreed);
             return mapToResponse(subBreed);
         } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && "sub_breeds.unique_sub_breed_idx".equals(cvex.getConstraintName())) {
+            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
                 throw new SubBreedAlreadyExistsException(String.format("Sub-breed with name %s already exists", createSubBreedRequest.getName()));
             }
             throw ex;
@@ -117,7 +117,7 @@ public class SubBreedService {
             subBreedRepository.saveAndFlush(subBreed);
             return mapToResponse(subBreed);
         } catch (DataIntegrityViolationException ex) {
-            if (ex.getCause() instanceof ConstraintViolationException cvex && "sub_breeds.unique_sub_breed_idx".equals(cvex.getConstraintName())) {
+            if (ex.getCause() instanceof ConstraintViolationException cvex && cvex.getConstraintName().toLowerCase().contains("unique_")) {
                 throw new SubBreedAlreadyExistsException(String.format("Sub-breed with name %s already exists", updateSubBreedRequest.getName()));
             }
 
