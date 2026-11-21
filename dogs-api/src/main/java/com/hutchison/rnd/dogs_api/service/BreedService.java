@@ -78,8 +78,13 @@ public class BreedService {
     }
 
     @Transactional
-    public void deleteBreed(Long id) {
+    public void deleteBreed(Long id, Integer version) {
         Breed breed = breedRepository.findById(id).orElseThrow(BreedNotFoundException::new);
+
+        if (!Objects.equals(breed.getVersion(), version)) {
+            throw new BreedVersionConflictException();
+        }
+
         breedRepository.delete(breed);
     }
 

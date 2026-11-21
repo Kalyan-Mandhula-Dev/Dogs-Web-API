@@ -146,7 +146,7 @@ public class BreedServiceTest {
         when(breedRepository.findById(1L))
                 .thenReturn(Optional.empty());
 
-        assertThrows(BreedNotFoundException.class, () -> breedService.deleteBreed(1L));
+        assertThrows(BreedNotFoundException.class, () -> breedService.deleteBreed(1L, 0));
         verify(breedRepository, never()).delete(any(Breed.class));
     }
 
@@ -154,9 +154,10 @@ public class BreedServiceTest {
     void deleteBreed_shouldDeleteBreedSuccessfully() {
         Breed breed = new Breed();
         breed.setId(1L);
+        breed.setVersion(0);
 
         when(breedRepository.findById(1L)).thenReturn(Optional.of(breed));
-        breedService.deleteBreed(1L);
+        breedService.deleteBreed(1L, 0);
         verify(breedRepository, times(1)).delete(breed);
     }
 }

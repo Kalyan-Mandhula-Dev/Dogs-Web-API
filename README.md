@@ -73,12 +73,12 @@ A Spring Boot service with MySQL database and React with Vite for frontend.
 | POST | /api/v1/breeds | Create a breed |
 | GET | /api/v1/breeds?lastId={lastId} | List breeds (Cursor based pagination) |
 | PUT | /api/v1/breeds/{id} | Update a breed |
-| DELETE | /api/v1/breeds/{id} | Delete a breed |
+| DELETE | /api/v1/breeds/{id}/{version} | Delete a breed |
 | POST | /api/v1/breeds/import | Import breeds |
 | POST | /api/v1/breeds/{breedId}/subbreeds | Create a sub-breed |
 | GET | /api/v1/breeds/{breedId}/subbreeds?lastId={lastId} | List sub-breeds (Cursor based pagination) |
 | PUT | /api/v1/breeds/{breedId}/subbreeds/{id} | Update a sub-breed |
-| DELETE | /api/v1/breeds/{breedId}/subbreeds/{id} | Delete a sub-breed |
+| DELETE | /api/v1/breeds/{breedId}/subbreeds/{id}/{version} | Delete a sub-breed |
 | GET | /actuator/health | Application health check |
 
 

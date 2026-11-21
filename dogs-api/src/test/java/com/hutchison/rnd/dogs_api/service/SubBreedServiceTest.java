@@ -5,10 +5,7 @@ import com.hutchison.rnd.dogs_api.dto.request.UpdateSubBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.response.SubBreedResponse;
 import com.hutchison.rnd.dogs_api.entity.Breed;
 import com.hutchison.rnd.dogs_api.entity.SubBreed;
-import com.hutchison.rnd.dogs_api.exception.BreedNotFoundException;
-import com.hutchison.rnd.dogs_api.exception.DuplicateSubBreedsFoundException;
-import com.hutchison.rnd.dogs_api.exception.SubBreedNotFoundException;
-import com.hutchison.rnd.dogs_api.exception.SubBreedVersionConflictException;
+import com.hutchison.rnd.dogs_api.exception.*;
 import com.hutchison.rnd.dogs_api.repository.BreedRepository;
 import com.hutchison.rnd.dogs_api.repository.SubBreedRepository;
 import org.junit.jupiter.api.Test;
@@ -111,8 +108,7 @@ public class SubBreedServiceTest {
     @Test
     void updateSubBreed_shouldThrowExceptionWhenSubBreedNotFound(){
         when(subBreedRepository.findById(1L)).thenReturn(Optional.empty());
-        SubBreedNotFoundException ex = assertThrows(SubBreedNotFoundException.class, ()-> subBreedService.updateSubBreed(1L, 1L, new UpdateSubBreedRequest()));
-        assertEquals(String.format("Sub-breed not found with id: %s", 1L), ex.getMessage());
+        assertThrows(SubBreedNotFoundException.class, ()-> subBreedService.updateSubBreed(1L, 1L, new UpdateSubBreedRequest()));
         verify(subBreedRepository, never()).saveAndFlush(any(SubBreed.class));
     }
 
@@ -128,8 +124,7 @@ public class SubBreedServiceTest {
         subBreed.setParentBreed(breed);
 
         when(subBreedRepository.findById(1L)).thenReturn(Optional.of(subBreed));
-        SubBreedNotFoundException ex = assertThrows(SubBreedNotFoundException.class, ()-> subBreedService.updateSubBreed(3L, 1L, new UpdateSubBreedRequest()));
-        assertEquals(String.format("Sub-breed with id %s not found under breed with id %s", 1L, 3L), ex.getMessage());
+        assertThrows(SubBreedNotFoundUnderBreedException.class, ()-> subBreedService.updateSubBreed(3L, 1L, new UpdateSubBreedRequest()));
         verify(subBreedRepository, never()).saveAndFlush(any(SubBreed.class));
     }
 
@@ -193,9 +188,10 @@ public class SubBreedServiceTest {
         subBreed.setId(2L);
         subBreed.setName("American");
         subBreed.setParentBreed(breed);
+        subBreed.setVersion(0);
 
         when(subBreedRepository.findById(2L)).thenReturn(Optional.of(subBreed));
-        subBreedService.deleteSubBreed(1L, 2L);
+        subBreedService.deleteSubBreed(1L, 2L, 0);
         verify(subBreedRepository, times(1)).delete(subBreed);
     }
 
@@ -203,7 +199,7 @@ public class SubBreedServiceTest {
     void deleteSubBreed_shouldThrowExceptionWhenSubBreedNotFound() {
 
         when(subBreedRepository.findById(2L)).thenReturn(Optional.empty());
-        assertThrows(SubBreedNotFoundException.class, () -> subBreedService.deleteSubBreed(1L, 2L));
+        assertThrows(SubBreedNotFoundException.class, () -> subBreedService.deleteSubBreed(1L, 2L, 0));
         verify(subBreedRepository, never()).delete(any(SubBreed.class));
     }
 

@@ -21,12 +21,6 @@ public class BreedController {
 
     private final BreedService breedService;
 
-//    @GetMapping
-//    public ResponseEntity<List<BreedResponse>> getAllBreeds(){
-//        List<BreedResponse> breeds = breedService.getAllBreeds();
-//        return ResponseEntity.ok().body(breeds);
-//    }
-
     @GetMapping("/{id}")
     public ResponseEntity<BreedResponse> getBreedById(@PathVariable("id") Long id){
         BreedResponse breed = breedService.getBreedById(id);
@@ -50,9 +44,9 @@ public class BreedController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedBreed);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBreed(@PathVariable("id") Long id){
-        breedService.deleteBreed(id);
+    @DeleteMapping("/{id}/{version}")
+    public ResponseEntity<Void> deleteBreed(@PathVariable("id") Long id, @PathVariable("version") Integer version){
+        breedService.deleteBreed(id, version);
         return ResponseEntity.noContent().build();
     }
 

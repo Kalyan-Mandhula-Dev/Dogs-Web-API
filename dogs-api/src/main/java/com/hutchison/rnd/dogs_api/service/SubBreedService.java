@@ -9,8 +9,6 @@ import com.hutchison.rnd.dogs_api.exception.*;
 import com.hutchison.rnd.dogs_api.repository.BreedRepository;
 import com.hutchison.rnd.dogs_api.repository.SubBreedRepository;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.exception.ConstraintViolationException;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -108,8 +106,13 @@ public class SubBreedService {
     }
 
     @Transactional
-    public void deleteSubBreed(Long breedId, Long id) {
+    public void deleteSubBreed(Long breedId, Long id, Integer version) {
         SubBreed subBreed = findSubBreedForBreed(breedId, id);
+
+        if (!Objects.equals(subBreed.getVersion(), version)) {
+            throw new SubBreedVersionConflictException();
+        }
+
         subBreedRepository.delete(subBreed);
     }
 

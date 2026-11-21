@@ -1,10 +1,7 @@
 package com.hutchison.rnd.dogs_api.controller;
 
-import com.hutchison.rnd.dogs_api.dto.request.CreateBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.request.CreateSubBreedRequest;
-import com.hutchison.rnd.dogs_api.dto.request.UpdateBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.request.UpdateSubBreedRequest;
-import com.hutchison.rnd.dogs_api.dto.response.BreedResponse;
 import com.hutchison.rnd.dogs_api.dto.response.SubBreedResponse;
 import com.hutchison.rnd.dogs_api.service.SubBreedService;
 import jakarta.validation.Valid;
@@ -22,14 +19,8 @@ public class SubBreedController {
 
     private final SubBreedService subBreedService;
 
-//    @GetMapping
-//    public ResponseEntity<List<SubBreedResponse>> getAllSubBreeds(@PathVariable("breedId") Long breedId){
-//        List<SubBreedResponse> subBreeds = subBreedService.getAllSubBreeds(breedId);
-//        return ResponseEntity.ok().body(subBreeds);
-//    }
-
     @GetMapping
-    public ResponseEntity<List<SubBreedResponse>> getSubBreeds(@PathVariable("breedId") Long breedId, @RequestParam("lastId") Long lastId){
+    public ResponseEntity<List<SubBreedResponse>> getSubBreeds(@PathVariable("breedId") Long breedId, @RequestParam(defaultValue = "0") Long lastId){
         List<SubBreedResponse> subBreeds = subBreedService.getSubBreeds(breedId, lastId);
         return ResponseEntity.ok().body(subBreeds);
     }
@@ -52,9 +43,9 @@ public class SubBreedController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedSubBreed);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSubBreed(@PathVariable("breedId") Long breedId, @PathVariable("id") Long id){
-        subBreedService.deleteSubBreed(breedId, id);
+    @DeleteMapping("/{id}/{version}")
+    public ResponseEntity<Void> deleteSubBreed(@PathVariable("breedId") Long breedId, @PathVariable("id") Long id, @PathVariable("version") Integer version){
+        subBreedService.deleteSubBreed(breedId, id, version);
         return ResponseEntity.noContent().build();
     }
 }
