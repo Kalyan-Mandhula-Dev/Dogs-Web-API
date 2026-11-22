@@ -17,6 +17,10 @@ services:
       timeout: 10s
       retries: 10
       start_period: 30s
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   dogs-api:
     build: ./dogs-api
@@ -32,6 +36,10 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   dogs-ui:
     build: ./dogs-ui
@@ -40,6 +48,10 @@ services:
       - "5173:80"
     depends_on:
       - dogs-api
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 
 volumes:
