@@ -9,6 +9,7 @@ import com.hutchison.rnd.dogs_api.exception.*;
 import com.hutchison.rnd.dogs_api.repository.BreedRepository;
 import com.hutchison.rnd.dogs_api.repository.SubBreedRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubBreedService {
 
     private final SubBreedRepository subBreedRepository;
@@ -33,6 +35,7 @@ public class SubBreedService {
     public List<SubBreedResponse> getSubBreeds(Long breedId, Long lastId) {
         findBreedById(breedId);
         List<SubBreed> subBreeds = subBreedRepository.findTop10ByParentBreed_IdAndIdGreaterThanOrderByIdAsc(breedId, lastId);
+        log.debug("Fetched {} sub-breeds for breed id={} after lastId={}", subBreeds.size(), breedId, lastId);
         return subBreeds.stream().map(this::mapToResponse).toList();
     }
 
@@ -67,6 +70,7 @@ public class SubBreedService {
         subBreed.setName(createSubBreedRequest.getName());
         subBreed.setParentBreed(breed);
         subBreedRepository.saveAndFlush(subBreed);
+        log.info("Created sub-breed id={} name={} for breed id={}", subBreed.getId(), subBreed.getName(), breedId);
         return mapToResponse(subBreed);
     }
 
@@ -89,7 +93,9 @@ public class SubBreedService {
             subBreedsToSave.add(subBreed);
         }
 
-        return subBreedRepository.saveAllAndFlush(subBreedsToSave);
+        List<SubBreed> saved = subBreedRepository.saveAllAndFlush(subBreedsToSave);
+        log.info("Created {} sub-breeds for breed id={}", saved.size(), breedId);
+        return saved;
     }
 
     @Transactional
@@ -103,6 +109,7 @@ public class SubBreedService {
 
         subBreed.setName(updateSubBreedRequest.getName());
         subBreedRepository.saveAndFlush(subBreed);
+        log.info("Updated sub-breed id={} name={} for breed id={}", subBreed.getId(), subBreed.getName(), breedId);
         return mapToResponse(subBreed);
     }
 
@@ -115,6 +122,7 @@ public class SubBreedService {
         }
 
         subBreedRepository.delete(subBreed);
+        log.info("Deleted sub-breed id={} name={} from breed id={}", subBreed.getId(), subBreed.getName(), breedId);
     }
 
     private SubBreedResponse mapToResponse(SubBreed subBreed) {

@@ -12,6 +12,7 @@ import com.hutchison.rnd.dogs_api.exception.BreedVersionConflictException;
 import com.hutchison.rnd.dogs_api.exception.InvalidImportFileException;
 import com.hutchison.rnd.dogs_api.repository.BreedRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,7 @@ import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BreedService {
 
     private final BreedRepository breedRepository;
@@ -43,6 +45,7 @@ public class BreedService {
     @Transactional(readOnly = true)
     public List<BreedResponse> getBreeds(Long lastId) {
         List<Breed> breeds = breedRepository.findTop10ByIdGreaterThanOrderByIdAsc(lastId);
+        log.debug("Fetched {} breeds after lastId={}", breeds.size(), lastId);
         List<Long> breedIds = breeds.stream().map(Breed::getId).toList();
         breedRepository.findAllWithSubBreedsByIds(breedIds);
         return breeds.stream().map(this::mapToResponse).toList();
@@ -59,6 +62,8 @@ public class BreedService {
             subBreeds = subBreedService.createSubBreeds(breed.getId(), createBreedRequest.getSubBreeds());
         }
 
+        log.info("Created breed id={} name={}", breed.getId(), breed.getName());
+
         BreedResponse breedResponse = mapToResponse(breed);
         breedResponse.setSubBreeds(subBreeds.stream().map(SubBreed::getName).toList());
         return breedResponse;
@@ -74,6 +79,7 @@ public class BreedService {
 
         breed.setName(updateBreedRequest.getName());
         breedRepository.saveAndFlush(breed);
+        log.info("Updated breed id={} name={}", breed.getId(), breed.getName());
         return mapToResponse(breed);
     }
 
@@ -86,6 +92,7 @@ public class BreedService {
         }
 
         breedRepository.delete(breed);
+        log.info("Deleted breed id={} name={}", breed.getId(), breed.getName());
     }
 
     @Transactional
@@ -97,7 +104,7 @@ public class BreedService {
                     }
             );
 
-            return breeds.entrySet().stream().map((entry) -> {
+            List<BreedResponse> imported = breeds.entrySet().stream().map((entry) -> {
 
                 String name = entry.getKey();
 
@@ -138,6 +145,9 @@ public class BreedService {
 
                 return createBreed(request);
             }).toList();
+
+            log.info("Imported {} breeds from file {}", imported.size(), file.getOriginalFilename());
+            return imported;
         } catch (IOException ex) {
             throw new InvalidImportFileException("Invalid JSON file");
         }
