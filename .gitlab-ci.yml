@@ -1,0 +1,70 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+    MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
+cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+        - .m2/repository/
+        - dogs-ui/node_modules/
+
+build-backend:
+    stage: build
+    image: maven:3.9-eclipse-temurin-21
+    script:
+        - cd dogs-api
+        - mvn clean package -DskipTests 
+    artifacts:
+        paths:
+            - dogs-api/target/*.jar
+        expire_in: 1 week
+
+build-frontend:
+    stage: build
+    image: node:26
+    script:
+        - cd dogs-ui
+        - npm ci
+        - npm run build
+    artifacts:
+        paths:
+            - dogs-ui/dist/
+        expire_in: 1 week
+
+
+test-backend:
+    stage: test
+    image: maven:3.9-eclipse-temurin-21
+    script: 
+        - cd dogs-api
+        - mvn test
+    artifacts:
+        when: always
+        reports:
+            junit: dogs-api/target/surefire-reports/*.xml
+
+deploy-ec2:
+  stage: deploy
+  image: alpine:3.20
+  dependencies: []
+  cache: []
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+  before_script:
+    - apk add --no-cache openssh-client tar
+    - chmod 600 $EC2_SSH_KEY
+  script:
+    - tar czf - --exclude=.git --exclude=node_modules --exclude=target . | ssh -i $EC2_SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "mkdir -p ~/dogs && tar xzf - -C ~/dogs"
+    - |
+      ssh -i $EC2_SSH_KEY -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "
+        cd ~/dogs &&
+        printf 'DATABASE_USERNAME=$DATABASE_USERNAME\nDATABASE_PASSWORD=$DATABASE_PASSWORD\nDATABASE_ROOT_PASSWORD=$DATABASE_ROOT_PASSWORD\nSPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE\nDOGS_UI_URL=$DOGS_UI_URL\n' > .env &&
+        printf 'VITE_DOGS_API_URL=$VITE_DOGS_API_URL\n' > dogs-ui/.env &&
+        docker compose up --build -d
+      "
+
+
