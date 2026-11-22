@@ -14,6 +14,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -129,6 +130,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidImportFileException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidImportFileException(InvalidImportFileException ex){
         return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex){
+        log.warn("File too large");
+        return buildError(HttpStatus.BAD_REQUEST, "File too large");
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
