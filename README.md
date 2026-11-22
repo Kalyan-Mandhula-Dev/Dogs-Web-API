@@ -7,6 +7,7 @@ A full-stack breeds and sub-breeds management application built with Spring Boot
 
 - **Live app:** [Dogs Web API](http://52.65.180.236:5173/)
 - **API Docs (Swagger UI):** Browse and try out the endpoints: [Swagger UI](http://52.65.180.236:8080/swagger-ui/index.html)
+- **Documentation site:** Guides and API reference: [Dogs Web API Docs](https://dogs-web-api.docs.buildwithfern.com) (source: [Dogs-Web-API-Docs](https://github.com/Kalyan-Mandhula-Dev/Dogs-Web-API-Docs))
 
 > **Note:** List starts empty until you add breeds or import them from docs/dogs.json
 
