@@ -3,6 +3,7 @@ package com.hutchison.rnd.dogs_api.exception;
 import com.hutchison.rnd.dogs_api.constant.DatabaseConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;
+import org.slf4j.MDC;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -163,6 +164,7 @@ public class GlobalExceptionHandler {
         errorMap.put("status", status.value());
         errorMap.put("error", status.getReasonPhrase());
         errorMap.put("timestamp", Instant.now().toString());
+        errorMap.put("requestId", MDC.get("requestId"));
         return new ResponseEntity<>(errorMap, status);
     }
 }

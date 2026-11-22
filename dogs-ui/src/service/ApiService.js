@@ -20,7 +20,7 @@ class ApiService {
                 return {
                     status: response.status,
                     success: false,
-                    message: data?.message ?? `Request failed ${response.status}`
+                    message: (data?.message ?? `Request failed ${response.status}`) + (data?.requestId ? ` (Ref: ${data.requestId})` : "")
                 }
             }
 
