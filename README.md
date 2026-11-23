@@ -5,11 +5,10 @@ A full-stack breeds and sub-breeds management application built with Spring Boot
 
 ## Live Demo
 
-- **Live app:** [Dogs Web API](http://52.65.180.236:5173/)
-- **API Docs (Swagger UI):** Browse and try out the endpoints: [Swagger UI](http://52.65.180.236:8080/swagger-ui/index.html)
-- **Documentation site:** Guides and API reference: [Dogs Web API Docs](https://dogs-web-api.docs.buildwithfern.com) (source: [Dogs-Web-API-Docs](https://github.com/Kalyan-Mandhula-Dev/Dogs-Web-API-Docs))
+- **Live app:** [Dogs Web API](https://dogsweb.duckdns.org)
+- **Documentation site:** Guides and API reference, try out the endpoints using `Try it`: [Dogs Web API Docs](https://dogsweb.docs.buildwithfern.com)
 
-> **Note:** List starts empty until you add breeds or import them from docs/dogs.json
+> **Note:** List starts empty until you add breeds or import them. Refer to docs/dogs.json for sample file.
 
 ## Features
 
@@ -18,31 +17,38 @@ A full-stack breeds and sub-breeds management application built with Spring Boot
 - **Pagination:** Cursor based pagination.
 - **Server side validation:** Failures or errors are displayed in popups.
 - **Optimistic locking:** Preventing conflicting edits when two or more users edit same item at once.
-- **Health check:** Exposes actuator endpoints to view the health status (`/actuator/health`).
+- **Health check:** Exposes actuator endpoints to view the health status (`/actuator/health`) and the running git commit (`/actuator/info`).
+- **Request id:** Every request gets an id, returned in the `X-Request-Id` header and in error responses, and printed in the logs for easy debugging.
+- **HTTPS:** Served over HTTPS with a free Let's Encrypt certificate using Caddy.
 
 ## Tech Stack
 
 - **Backend:** Java, Spring Boot
 - **Frontend:** React
 - **Database:** MySQL, Flyway
-- **DevOps:** Docker, Docker Compose, AWS EC2
+- **DevOps:** Docker, Docker Compose, Caddy, GitLab CI/CD, AWS EC2
+- **Docs:** Fern
 - **Testing:** JUnit, Mockito, k6
 
 ## Architecture
 
-A Spring Boot service with MySQL database and React with Vite for frontend.
+A Spring Boot service with MySQL database and React with Vite for frontend. Caddy sits in front of both and sends `/api` and `/actuator` requests to the backend and everything else to the UI.
 
 | Service | Responsibility |
 |---------|---------------|
+| caddy-service | Reverse proxy and HTTPS |
 | dogs-api | Breed and sub-breeds management |
 | dogs-ui | User interface |
+| mysql | Database |
 
 ### Service Ports
 
 | Service | Port | Publicly Accessible |
 |---------|-----|----------------------|
-| dogs-api | 8080 | Yes |
-| dogs-ui | 5173 | Yes |
+| caddy-service | 80, 443 | Yes |
+| dogs-api | 8080 | No (through Caddy) |
+| dogs-ui | 80 | No (through Caddy) |
+| mysql | 3306 | No |
 
 
 ## How to Use
@@ -66,21 +72,24 @@ A Spring Boot service with MySQL database and React with Vite for frontend.
 
 ### APIs
 
-- **Base URL:** <http://52.65.180.236:8080/>
-- **Full interactive docs:** [Swagger UI](http://52.65.180.236:8080/swagger-ui/index.html)
+- **Base URL:** `https://dogsweb.duckdns.org/api/v1`
+- **Full interactive docs:** [Dogs Web API Docs](https://dogsweb.docs.buildwithfern.com)
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | /api/v1/breeds | Create a breed |
 | GET | /api/v1/breeds?lastId={lastId} | List breeds (Cursor based pagination) |
+| GET | /api/v1/breeds/{id} | Get a breed |
 | PUT | /api/v1/breeds/{id} | Update a breed |
 | DELETE | /api/v1/breeds/{id}/{version} | Delete a breed |
-| POST | /api/v1/breeds/import | Import breeds |
+| POST | /api/v1/breeds/import | Import breeds (JSON file, max 500 KB) |
 | POST | /api/v1/breeds/{breedId}/subbreeds | Create a sub-breed |
 | GET | /api/v1/breeds/{breedId}/subbreeds?lastId={lastId} | List sub-breeds (Cursor based pagination) |
+| GET | /api/v1/breeds/{breedId}/subbreeds/{id} | Get a sub-breed |
 | PUT | /api/v1/breeds/{breedId}/subbreeds/{id} | Update a sub-breed |
 | DELETE | /api/v1/breeds/{breedId}/subbreeds/{id}/{version} | Delete a sub-breed |
 | GET | /actuator/health | Application health check |
+| GET | /actuator/info | Running git commit |
 
 
 **Create a breed**
@@ -100,9 +109,9 @@ POST /api/v1/breeds
 *Response*
 ``` json
 {
-  "createdAt": "2026-11-19T22:51:00.833234",
+  "createdAt": "2026-11-19T22:51:00.833234Z",
   "id": 1787,
-  "modifiedAt": "2026-11-19T22:51:00.833234",
+  "modifiedAt": "2026-11-19T22:51:00.833234Z",
   "name": "Corgi",
   "subBreeds": [
     "american",
@@ -126,6 +135,20 @@ PUT /api/v1/breeds/1787
 
 Send the `version` you last read. If someone else updated the breed before your request did, the request is rejected with `409 Conflict` and you need to reload the latest data before retrying.
 
+**Error response**
+
+All errors return the same format. Share the `requestId` when reporting an issue, it helps to find the request in the logs.
+
+``` json
+{
+  "status": 409,
+  "error": "Conflict",
+  "message": "Breed was modified by another user, please refresh and try again",
+  "timestamp": "2026-11-23T09:45:03.112Z",
+  "requestId": "3f9a1c2e"
+}
+```
+
 
 ## Run Locally With Docker Compose
 
@@ -133,7 +156,7 @@ Send the `version` you last read. If someone else updated the breed before your 
 
 - Docker with Docker compose (Docker Desktop)
 - Git
-- Ports **5173** (UI), **8080** (API) and **3306** (MySQL) free on your machine
+- Ports **80** and **443** free on your machine
 
 ### Steps
 
@@ -150,7 +173,7 @@ Send the `version` you last read. If someone else updated the breed before your 
    cp .env.example .env
    ```
 
-   Update the values in `.env` (app host, database username, password and root password).
+   Update the values in `.env` (profile, domain, database username, password and root password). Keep `DOMAIN=localhost` for local.
 
 
 3. Create the UI environment file. Vite reads `VITE_*` values when the UI is built:
@@ -161,11 +184,10 @@ Send the `version` you last read. If someone else updated the breed before your 
    Set the API URL in `dogs-ui/.env`:
 
    ```
-   Example: for local environment
-   VITE_DOGS_API_URL=http://localhost:8080/api
+   VITE_DOGS_API_URL=/api
    ```
 
-    The React app runs in the browser, so the API URL must be an address the browser can reach (such as `http://localhost:8080/api`), not a Docker service name.
+   The UI and API are served from the same address through Caddy, so a relative `/api` works for both local and live.
 
 4. Build and start everthing:
 
@@ -175,9 +197,9 @@ Send the `version` you last read. If someone else updated the breed before your 
 
    Multi-stage `Dockerfile` builds the jar not need to build jar explicitly.
 
-5. Open the application at <http://localhost:5173>:
+5. Open the application at <https://localhost>:
 
-   The breeds list starts empty. Add the breeds or import from `dogs.json`.
+   Caddy uses its own local certificate for `localhost`, so the browser may show a warning the first time. The breeds list starts empty. Add the breeds or import from `dogs.json`.
 
 To stop everything, run `docker compose down`.
 
@@ -188,11 +210,12 @@ Backend settings go in `.env` at the project root. The UI setting goes in `dogs-
 
 | Variable | Description |
 |----------|-------------|
+| `SPRING_PROFILES_ACTIVE` | Spring profile, `dev` or `prod` |
+| `DOMAIN` | Domain Caddy serves, `localhost` for local, `dogsweb.duckdns.org` for live |
 | `DATABASE_USERNAME` | Database user the app connects as |
 | `DATABASE_PASSWORD` | Password for that user |
 | `DATABASE_ROOT_PASSWORD` | MySQL root password, used by the database container |
-| `DOGS_UI_URL` | UI address allowed to call the APIs e.g. `http://localhost:5173` |
-| `VITE_DOGS_API_URL` | API address the browser calls (`dogs-ui/.env`), e.g. `http://localhost:8080/api` |
+| `VITE_DOGS_API_URL` | API address the browser calls (`dogs-ui/.env`), `/api` |
 
 
 ## Tests
@@ -212,7 +235,7 @@ Results are printed in the terminal.
 
 This test sends conflicting updates to the same breed to show that only one succeeds, which prevents data inconsistency.
 
-**Prerequisites:** k6 installed and the app running locally. Don't run it against the live demo, because it edits real data. The script targets `http://localhost:8080/api/v1/breeds` (`PUT Request`) by default.
+**Prerequisites:** k6 installed and the app running locally. This test is only for local, to show the optimistic locking works. Don't run it against the live app, because it edits real data. The script targets `http://localhost/api/v1/breeds` (`PUT Request`) by default.
 
 
 1. Create a breed or pick an existing one, and note its `id`, `name` and `version`.
@@ -249,37 +272,26 @@ Dogs-Web-API/
 │   ├── src/test/          # JUnit and Mockito tests
 │   └── performance-tests/ # k6 script
 ├── dogs-ui/               # React and Vite frontend
+├── fern/                  # Fern docs (guides and API reference)
+├── Caddyfile              # Reverse proxy and HTTPS
+├── .gitlab-ci.yml         # CI/CD pipeline
 ├── docker-compose.yaml
 └── .env.example
 ```
 
 ## Deployment
 
-The app is deployed on a single AWS EC2 instance using Docker Compose.
+The app is deployed on a single AWS EC2 instance using Docker Compose, through a GitLab CI/CD pipeline. It is available at <https://dogsweb.duckdns.org> (free DuckDNS domain pointing to the EC2 Elastic IP).
 
-1. Launched an Ubuntu EC2 instance (t3.small) with a key pair for SSH access and a root volume large enough for Docker images and MySQL data.
-2. Configured the security group to allow SSH (port 22), the UI (5173) and the API (8080).
-3. Attached an Elastic IP so the address stays the same across stop and start.
-4. Connected over SSH and installed Git and Docker.
-5. Cloned the repository.
-6. Created the production `.env` file on the server (root).
-7. Started everything:
+Every push to `main` runs the pipeline:
 
-   ```bash
-   docker compose up --build -d
-   ```
+1. **Build:** builds the backend jar and the frontend.
+2. **Test:** runs the unit tests.
+3. **Deploy:** copies the code to EC2 over SSH, creates the `.env` files from the GitLab CI/CD variables, runs `docker compose up --build -d` and removes old images.
 
-### Redeploying
+The deployed git commit is passed to the app, check it at <https://dogsweb.duckdns.org/actuator/info>.
 
-SSH into the instance, then:
-
-```bash
-cd Dogs-Web-API
-git pull
-docker compose up --build -d
-```
-
-Compose rebuilds only the changed images and recreates their containers. The database volume is kept, so data survives redeploys.
+The EC2 security group allows SSH (22), HTTP (80) and HTTPS (443) only. Caddy gets and renews the HTTPS certificate automatically. The database volume is kept, so data survives redeploys.
 
 ## Design Decisions
 
