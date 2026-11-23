@@ -1,0 +1,24 @@
+instances:
+  - url: https://dogsweb.docs.buildwithfern.com
+title: Dogsweb | Documentation
+navigation:
+  - section: Guides
+    contents:
+      - page: Introduction
+        path: ./pages/introduction.md
+      - page: Quick Start
+        path: ./pages/quickstart.md
+      - page: Concurrency
+        path: ./pages/concurrency.md
+      - page: Pagination
+        path: ./pages/pagination.md
+      - page: Errors
+        path: ./pages/errors.md
+  - api: API Reference
+    paginated: true
+    specs:
+      - type: openapi
+        path: ./openapi.yml
+colors:
+  accentPrimary: '#ffffff'
+  background: '#000000'
