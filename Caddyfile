@@ -1,8 +1,11 @@
-dogsweb.duckdns.org {
+{$DOMAIN} {
     handle /api/* {
         reverse_proxy dogs-api:8080
     }
     handle {
         reverse_proxy dogs-ui:80
+    }
+    handle /actuator/* {
+        reverse_proxy dogs-api:8080
     }
 }

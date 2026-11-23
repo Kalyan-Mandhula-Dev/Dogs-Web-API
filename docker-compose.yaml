@@ -57,6 +57,8 @@ services:
     image: caddy:2
     container_name: caddy-service
     restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
     ports:
       - "80:80"
       - "443:443"
