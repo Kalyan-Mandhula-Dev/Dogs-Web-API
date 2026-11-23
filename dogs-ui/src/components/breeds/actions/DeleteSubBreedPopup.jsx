@@ -6,7 +6,7 @@ export default function DeleteSubBreedPopup(props) {
 
     const handleDeleteSubBreed = async () => {
 
-        let response = await ApiService.delete(`${props.SUBBREEDS_ENDPOINT}/${props.selectedSubBreed.id}/${props.selectedSubBreed.version}`);
+        let response = await ApiService.delete(`${props.SUBBREEDS_ENDPOINT}/${props.selectedSubBreed.id}?version=${props.selectedSubBreed.version}`);
 
         if (response.success) {
             props.setSubBreeds(prevSubBreeds => prevSubBreeds.filter(subBreed => subBreed.id !== props.selectedSubBreed.id));

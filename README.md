@@ -106,13 +106,13 @@ Only Caddy is open to the internet. The other containers talk to each other insi
 | GET | /api/v1/breeds?lastId={lastId} | List breeds (Cursor based pagination) |
 | GET | /api/v1/breeds/{id} | Get a breed |
 | PUT | /api/v1/breeds/{id} | Update a breed |
-| DELETE | /api/v1/breeds/{id}/{version} | Delete a breed |
+| DELETE | /api/v1/breeds/{id}?version={version} | Delete a breed |
 | POST | /api/v1/breeds/import | Import breeds (JSON file, max 500 KB) |
 | POST | /api/v1/breeds/{breedId}/subbreeds | Create a sub-breed |
 | GET | /api/v1/breeds/{breedId}/subbreeds?lastId={lastId} | List sub-breeds (Cursor based pagination) |
 | GET | /api/v1/breeds/{breedId}/subbreeds/{id} | Get a sub-breed |
 | PUT | /api/v1/breeds/{breedId}/subbreeds/{id} | Update a sub-breed |
-| DELETE | /api/v1/breeds/{breedId}/subbreeds/{id}/{version} | Delete a sub-breed |
+| DELETE | /api/v1/breeds/{breedId}/subbreeds/{id}?version={version} | Delete a sub-breed |
 | GET | /actuator/health | Application health check |
 | GET | /actuator/info | Running git commit |
 

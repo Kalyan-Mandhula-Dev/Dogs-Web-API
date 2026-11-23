@@ -6,7 +6,7 @@ export default function DeleteBreedPopup(props) {
 
     const handleDeleteBreed = async () => {
 
-        const response = await ApiService.delete(`${props.BREEDS_ENDPOINT}/${props.selectedBreed.id}/${props.selectedBreed.version}`)
+        const response = await ApiService.delete(`${props.BREEDS_ENDPOINT}/${props.selectedBreed.id}?version=${props.selectedBreed.version}`)
 
         if (response.success) {
             props.setBreeds(prevBreeds => prevBreeds.filter(breed => breed.id !== props.selectedBreed.id));

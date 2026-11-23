@@ -44,8 +44,8 @@ public class BreedController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedBreed);
     }
 
-    @DeleteMapping("/{id}/{version}")
-    public ResponseEntity<Void> deleteBreed(@PathVariable("id") Long id, @PathVariable("version") Integer version){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteBreed(@PathVariable("id") Long id, @RequestParam("version") Integer version){
         breedService.deleteBreed(id, version);
         return ResponseEntity.noContent().build();
     }

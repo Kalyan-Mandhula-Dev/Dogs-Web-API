@@ -43,8 +43,8 @@ public class SubBreedController {
         return ResponseEntity.status(HttpStatus.OK).body(updatedSubBreed);
     }
 
-    @DeleteMapping("/{id}/{version}")
-    public ResponseEntity<Void> deleteSubBreed(@PathVariable("breedId") Long breedId, @PathVariable("id") Long id, @PathVariable("version") Integer version){
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteSubBreed(@PathVariable("breedId") Long breedId, @PathVariable("id") Long id, @RequestParam("version") Integer version){
         subBreedService.deleteSubBreed(breedId, id, version);
         return ResponseEntity.noContent().build();
     }

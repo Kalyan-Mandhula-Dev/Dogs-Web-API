@@ -49,6 +49,27 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BreedResponse'
+    delete:
+      tags:
+        - breed-controller
+      operationId: deleteBreed
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: version
+          in: query
+          description: The version you last read. If it is old, the delete fails with 409 Conflict.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: No Content
   /api/v1/breeds/{breedId}/subbreeds/{id}:
     get:
       tags:
@@ -104,6 +125,33 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/SubBreedResponse'
+    delete:
+      tags:
+        - sub-breed-controller
+      operationId: deleteSubBreed
+      parameters:
+        - name: breedId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: version
+          in: query
+          description: The version you last read. If it is old, the delete fails with 409 Conflict.
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '204':
+          description: No Content
   /api/v1/breeds:
     get:
       tags:
@@ -220,54 +268,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/BreedResponse'
-  /api/v1/breeds/{id}/{version}:
-    delete:
-      tags:
-        - breed-controller
-      operationId: deleteBreed
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: version
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: OK
-  /api/v1/breeds/{breedId}/subbreeds/{id}/{version}:
-    delete:
-      tags:
-        - sub-breed-controller
-      operationId: deleteSubBreed
-      parameters:
-        - name: breedId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: version
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        '200':
-          description: OK
 components:
   schemas:
     UpdateBreedRequest:

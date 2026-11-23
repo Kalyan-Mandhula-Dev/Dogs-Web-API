@@ -7,7 +7,7 @@ Every breed and sub-breed has a `version`. It starts at `0` and goes up by one e
 You must send the `version` you last read when you:
 
 - Update: `PUT /api/v1/breeds/{id}` and `PUT /api/v1/breeds/{breedId}/subbreeds/{id}` (in the request body)
-- Delete: `DELETE /api/v1/breeds/{id}/{version}` and `DELETE /api/v1/breeds/{breedId}/subbreeds/{id}/{version}` (in the path)
+- Delete: `DELETE /api/v1/breeds/{id}?version={version}` and `DELETE /api/v1/breeds/{breedId}/subbreeds/{id}?version={version}` (as a query parameter)
 
 The API compares your `version` with the one in the database. If they match, the change is saved. If they don't match, someone else changed the record after you read it, and your request is rejected with `409 Conflict`.
 
@@ -66,4 +66,4 @@ Same applies for sub-breeds.
 3. Send the request again with the new `version`.
 
 
-The same applies to delete. If the `version` in the delete path is old, the delete is rejected with `409 Conflict` and nothing is removed.
+The same applies to delete. If the `version` query parameter on a delete is old, the delete is rejected with `409 Conflict` and nothing is removed.
