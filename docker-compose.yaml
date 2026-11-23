@@ -32,7 +32,6 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/dogs_db
       SPRING_DATASOURCE_USERNAME: ${DATABASE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DATABASE_PASSWORD}
-      DOGS_UI_URL: ${DOGS_UI_URL}
       GIT_COMMIT: ${GIT_COMMIT:-local}
     depends_on:
       mysql:
@@ -69,13 +68,13 @@ services:
       - dogs-api
       - dogs-ui
     
-    dozzle:
-      image: amir20/dozzle:latest
-      container_name: dozzle
-      restart: unless-stopped
-      environment:
-        DOZZLE_BASE: /logs
-      volumes:
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    environment:
+      DOZZLE_BASE: /logs
+    volumes:
         - /var/run/docker.sock:/var/run/docker.sock:ro
 
 
