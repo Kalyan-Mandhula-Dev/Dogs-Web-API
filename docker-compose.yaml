@@ -4,6 +4,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: dogs-database
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: dogs_db
       MYSQL_USER: ${DATABASE_USERNAME}
@@ -25,6 +26,7 @@ services:
   dogs-api:
     build: ./dogs-api
     container_name: dogs-api
+    restart: unless-stopped
     ports:
       - "8080:8080"
     environment:
@@ -45,6 +47,7 @@ services:
   dogs-ui:
     build: ./dogs-ui
     container_name: dogs-ui
+    restart: unless-stopped
     ports:
       - "5173:80"
     depends_on:
