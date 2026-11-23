@@ -84,7 +84,7 @@ export default function Breeds() {
 
             <table className="breed-table">
                 <tr>
-                    <th>Name of the breed</th>
+                    <th>Name</th>
                     <th>Number of sub breeds</th>
                     <th>Last modified at</th>
                     <th>Action</th>
