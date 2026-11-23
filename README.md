@@ -19,6 +19,7 @@ A full-stack breeds and sub-breeds management application built with Spring Boot
 - **Optimistic locking:** Preventing conflicting edits when two or more users edit same item at once.
 - **Health check:** Exposes actuator endpoints to view the health status (`/actuator/health`) and the running git commit (`/actuator/info`).
 - **Request id:** Every request gets an id, returned in the `X-Request-Id` header and in error responses, and printed in the logs for easy debugging.
+- **Logs:** View the live app container logs at <https://dogsweb.duckdns.org/logs> (login required) using Dozzle. This is for production only, locally see the logs in the terminal. To debug an error, search its `requestId` in the `dogs-api` logs.
 - **HTTPS:** Served over HTTPS with a free Let's Encrypt certificate using Caddy.
 
 ## Tech Stack
@@ -26,13 +27,13 @@ A full-stack breeds and sub-breeds management application built with Spring Boot
 - **Backend:** Java, Spring Boot
 - **Frontend:** React
 - **Database:** MySQL, Flyway
-- **DevOps:** Docker, Docker Compose, Caddy, GitLab CI/CD, AWS EC2
+- **DevOps:** Docker, Docker Compose, Caddy, GitLab CI/CD, AWS EC2, Dozzle
 - **Docs:** Fern
 - **Testing:** JUnit, Mockito, k6
 
 ## Architecture
 
-A Spring Boot service with MySQL database and React with Vite for frontend. Caddy sits in front of both and sends `/api` and `/actuator` requests to the backend and everything else to the UI.
+A Spring Boot service with MySQL database and React with Vite for frontend. Caddy sits in front of both and sends `/api` and `/actuator` requests to the backend, `/logs` to Dozzle and everything else to the UI.
 
 ```mermaid
 flowchart LR
@@ -46,8 +47,10 @@ flowchart LR
         api["dogs-api<br/>Spring Boot, 8080"]
         ui["dogs-ui<br/>React on Nginx, 80"]
         db[("mysql<br/>3306")]
+        logs["dozzle<br/>container logs"]
         caddy -->|"/api, /actuator"| api
         caddy -->|"everything else"| ui
+        caddy -->|"/logs (login)"| logs
         api --> db
     end
 ```
@@ -57,6 +60,7 @@ Only Caddy is open to the internet. The other containers talk to each other insi
 | Service | Responsibility |
 |---------|---------------|
 | caddy-service | Reverse proxy and HTTPS |
+| dozzle | View container logs |
 | dogs-api | Breed and sub-breeds management |
 | dogs-ui | User interface |
 | mysql | Database |
@@ -69,6 +73,7 @@ Only Caddy is open to the internet. The other containers talk to each other insi
 | dogs-api | 8080 | No (through Caddy) |
 | dogs-ui | 80 | No (through Caddy) |
 | mysql | 3306 | No |
+| dozzle | 8080 | No (through Caddy, login required) |
 
 
 ## How to Use
@@ -235,6 +240,8 @@ Backend settings go in `.env` at the project root. The UI setting goes in `dogs-
 | `DATABASE_USERNAME` | Database user the app connects as |
 | `DATABASE_PASSWORD` | Password for that user |
 | `DATABASE_ROOT_PASSWORD` | MySQL root password, used by the database container |
+| `LOGS_USER` | Username to open `/logs` (production only) |
+| `LOGS_PASSWORD_HASH` | Password hash to open `/logs` (production only), created with `caddy hash-password` |
 | `VITE_DOGS_API_URL` | API address the browser calls (`dogs-ui/.env`), `/api` |
 
 

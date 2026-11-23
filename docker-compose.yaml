@@ -58,8 +58,9 @@ services:
     restart: unless-stopped
     environment:
       DOMAIN: ${DOMAIN:-localhost}
-      LOGS_USER: ${LOGS_USER}
-      LOGS_PASSWORD_HASH: ${LOGS_PASSWORD_HASH}
+      # Dozzle login is for production only. For local these defaults keep Caddy starting.
+      LOGS_USER: ${LOGS_USER:-local}
+      LOGS_PASSWORD_HASH: ${LOGS_PASSWORD_HASH:-$$2a$$14$$53NKSq7PyPthAIh4uJHaaOBRNJzFjssGWcH2h5gRKMUrjarhesQdW}
     ports:
       - "80:80"
       - "443:443"
