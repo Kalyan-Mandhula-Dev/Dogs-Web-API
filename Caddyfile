@@ -8,4 +8,10 @@
     handle /actuator/* {
         reverse_proxy dogs-api:8080
     }
+    handle /logs* {
+        basic_auth {
+            {$LOGS_USER} {$LOGS_PASSWORD_HASH}
+        }
+        reverse_proxy dozzle:8080
+    }
 }
