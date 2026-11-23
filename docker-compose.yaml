@@ -58,6 +58,8 @@ services:
     restart: unless-stopped
     environment:
       DOMAIN: ${DOMAIN:-localhost}
+      LOGS_USER: ${LOGS_USER}
+      LOGS_PASSWORD_HASH: ${LOGS_PASSWORD_HASH}
     ports:
       - "80:80"
       - "443:443"
