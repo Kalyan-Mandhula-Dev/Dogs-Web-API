@@ -57,6 +57,22 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  caddy-service:
+    image: caddy:2
+    container_name: caddy-service
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+    depends_on:
+      - dogs-api
+      - dogs-ui
+
+
 
 volumes:
   mysql_data:
+  caddy_data:
