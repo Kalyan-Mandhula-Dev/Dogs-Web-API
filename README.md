@@ -34,6 +34,26 @@ A full-stack breeds and sub-breeds management application built with Spring Boot
 
 A Spring Boot service with MySQL database and React with Vite for frontend. Caddy sits in front of both and sends `/api` and `/actuator` requests to the backend and everything else to the UI.
 
+```mermaid
+flowchart LR
+    user["Browser"] -->|"HTTPS"| caddy
+    fern["Fern docs (Try it)"] -->|"HTTPS"| caddy
+    dev["Developer"] -->|"git push"| ci["GitLab CI/CD<br/>build, test, deploy"]
+    ci -->|"SSH, docker compose up"| ec2
+
+    subgraph ec2["AWS EC2 (Docker Compose)"]
+        caddy["caddy-service<br/>80, 443<br/>dogsweb.duckdns.org"]
+        api["dogs-api<br/>Spring Boot, 8080"]
+        ui["dogs-ui<br/>React on Nginx, 80"]
+        db[("mysql<br/>3306")]
+        caddy -->|"/api, /actuator"| api
+        caddy -->|"everything else"| ui
+        api --> db
+    end
+```
+
+Only Caddy is open to the internet. The other containers talk to each other inside the Docker network.
+
 | Service | Responsibility |
 |---------|---------------|
 | caddy-service | Reverse proxy and HTTPS |
