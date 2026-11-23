@@ -3,6 +3,6 @@ dogsweb.duckdns.org {
         reverse_proxy dogs-api:8080
     }
     handle {
-        reverse_proxy frontend:80
+        reverse_proxy dogs-ui:80
     }
 }
