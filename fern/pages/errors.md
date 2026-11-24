@@ -24,7 +24,7 @@ When a request fails, the API returns an HTTP error status and a JSON body in th
 
 | Status | When |
 |--------|------|
-| `400 Bad Request` | Validation failed (example: `name: must not be blank`), the body or a path value is invalid, duplicate sub-breeds in the same request, invalid import file, or file too large |
+| `400 Bad Request` | Validation failed (example: `name: must not be blank`), the body or a path value is invalid, duplicate sub-breeds in the same request, invalid import file (the whole file is rejected and nothing is saved), or file too large |
 | `404 Not Found` | The breed or sub-breed doesn't exist, or the sub-breed doesn't belong to the breed in the path |
 | `409 Conflict` | The breed or sub-breed already exists, or the `version` is old |
 | `500 Internal Server Error` | Something unexpected failed on the server|

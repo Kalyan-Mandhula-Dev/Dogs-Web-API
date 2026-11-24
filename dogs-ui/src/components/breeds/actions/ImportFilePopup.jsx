@@ -17,8 +17,12 @@ export default function ImportFilePopup(props) {
         let response = await ApiService.post(`${props.BREEDS_ENDPOINT}/import`, formData)
 
         if (response.success) {
-            let data = response.data
-            alert("Breeds imported successfully!!")
+            const { imported, skipped, skippedBreeds } = response.data;
+            let summary = `Imported ${imported} new breed(s). Skipped ${skipped} existing breed(s).`;
+            if (skipped > 0) {
+                summary += `\n\nSkipped: ${skippedBreeds.join(", ")}`;
+            }
+            alert(summary)
             await props.refreshBreeds();
         } else {
             alert(response.message)

@@ -248,6 +248,13 @@ paths:
       tags:
         - breed-controller
       operationId: importBreeds
+      summary: Import breeds from a dogs.json file
+      description: |
+        Checks the whole file first. If any data is invalid (bad JSON, blank or
+        too-long names, duplicate breeds or sub-breeds in the file), the whole
+        file is rejected with 400, the message names the first problem, and
+        nothing is saved. If the file is valid, new breeds are saved and breeds
+        that already exist are skipped.
       requestBody:
         content:
           multipart/form-data:
@@ -261,15 +268,34 @@ paths:
                 - file
       responses:
         '200':
-          description: OK
+          description: Import summary
           content:
             '*/*':
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BreedResponse'
+                $ref: '#/components/schemas/ImportBreedsResponse'
+        '400':
+          description: Invalid file. Nothing was saved.
 components:
   schemas:
+    ImportBreedsResponse:
+      type: object
+      properties:
+        imported:
+          type: integer
+          description: Number of new breeds saved
+        skipped:
+          type: integer
+          description: Number of breeds skipped because they already exist
+        skippedBreeds:
+          type: array
+          description: Names of the skipped breeds
+          items:
+            type: string
+      example:
+        imported: 2
+        skipped: 1
+        skippedBreeds:
+          - hound
     UpdateBreedRequest:
       type: object
       properties:

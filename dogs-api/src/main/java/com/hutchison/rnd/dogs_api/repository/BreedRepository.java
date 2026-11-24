@@ -18,6 +18,8 @@ public interface BreedRepository extends JpaRepository<Breed, Long> {
 
     public boolean existsByName(String name);
 
+    public boolean existsByNameIgnoreCase(String name);
+
     public List<Breed> findTop10ByIdGreaterThanOrderByIdAsc(Long lastId);
 
     @Query("SELECT DISTINCT breed from Breed breed LEFT JOIN FETCH breed.subBreeds where breed.id IN :ids")

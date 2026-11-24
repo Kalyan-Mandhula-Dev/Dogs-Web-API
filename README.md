@@ -325,7 +325,7 @@ The EC2 security group allows SSH (22), HTTP (80) and HTTPS (443) only. Caddy ge
 - **Separate breeds and sub-breeds tables (one-to-many):** Avoids repeating breed data on every sub-breed row, keeps updates simple.
 - **Cursor-based pagination (`lastId`):** The query asks directly the next page data using the index instead of scanning them and skipping like offset pagination, so it stays fast on large data. The trade-off is no jumping to arbitrary page numbers.
 - **Optimistic locking (`version` field):** Handles conflicting updates of the same record. The second update gets `409 Conflict` instead of overwriting the first.
-- **All-or-nothing import:** The data in file is validated and saved in a single transaction, avoiding partial data saving.
+- **Import validates first, then skips existing breeds:** The whole file is checked before anything is saved. Any invalid data gives `400` naming the first problem, and nothing is saved. If the file is valid, new breeds are saved and breeds that already exist are skipped. The response is a summary: `{imported, skipped, skippedBreeds}`.
 
 ## Limitations and Future Work
 

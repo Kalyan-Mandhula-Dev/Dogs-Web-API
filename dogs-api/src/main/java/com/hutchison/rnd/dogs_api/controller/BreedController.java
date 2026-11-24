@@ -3,6 +3,7 @@ package com.hutchison.rnd.dogs_api.controller;
 import com.hutchison.rnd.dogs_api.dto.request.CreateBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.request.UpdateBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.response.BreedResponse;
+import com.hutchison.rnd.dogs_api.dto.response.ImportBreedsResponse;
 import com.hutchison.rnd.dogs_api.service.BreedService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -51,8 +52,8 @@ public class BreedController {
     }
 
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<List<BreedResponse>> importBreeds(@RequestPart("file") MultipartFile file){
-        List<BreedResponse> createdBreeds = breedService.importBreeds(file);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdBreeds);
+    public ResponseEntity<ImportBreedsResponse> importBreeds(@RequestPart("file") MultipartFile file){
+        ImportBreedsResponse summary = breedService.importBreeds(file);
+        return ResponseEntity.ok(summary);
     }
 }

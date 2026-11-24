@@ -1,10 +1,12 @@
 package com.hutchison.rnd.dogs_api.service;
 
+import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 import com.hutchison.rnd.dogs_api.dto.request.CreateBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.request.UpdateBreedRequest;
 import com.hutchison.rnd.dogs_api.dto.response.BreedResponse;
+import com.hutchison.rnd.dogs_api.dto.response.ImportBreedsResponse;
 import com.hutchison.rnd.dogs_api.entity.Breed;
 import com.hutchison.rnd.dogs_api.entity.SubBreed;
 import com.hutchison.rnd.dogs_api.exception.BreedNotFoundException;
@@ -19,9 +21,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -96,63 +100,87 @@ public class BreedService {
     }
 
     @Transactional
-    public List<BreedResponse> importBreeds(MultipartFile file) {
+    public ImportBreedsResponse importBreeds(MultipartFile file) {
+        List<CreateBreedRequest> requests = validateImportFile(readImportFile(file));
+
+        int imported = 0;
+        List<String> skippedBreeds = new ArrayList<>();
+
+        for (CreateBreedRequest request : requests) {
+            if (breedRepository.existsByNameIgnoreCase(request.getName())) {
+                skippedBreeds.add(request.getName());
+            } else {
+                createBreed(request);
+                imported++;
+            }
+        }
+
+        log.info("Imported {} breeds, skipped {} existing breeds",
+                imported, skippedBreeds.size());
+        return new ImportBreedsResponse(imported, skippedBreeds.size(), skippedBreeds);
+    }
+
+    private Map<String, List<String>> readImportFile(MultipartFile file) {
         try {
-            Map<String, List<String>> breeds = objMapper.readValue(
+            return objMapper.readValue(
                     file.getInputStream(),
                     new TypeReference<Map<String, List<String>>>() {
                     }
             );
-
-            List<BreedResponse> imported = breeds.entrySet().stream().map((entry) -> {
-
-                String name = entry.getKey();
-
-                if (name != null) {
-                    name = name.trim();
-                }
-
-                List<String> subBreeds = entry.getValue();
-
-                if (name == null || name.isBlank()) {
-                    throw new InvalidImportFileException("Breed name cannot be blank");
-                }
-
-                if (name.length() > 100) {
-                    throw new InvalidImportFileException("Breed name cannot exceed 100 characters");
-                }
-
-                if (subBreeds != null) {
-
-                    subBreeds = subBreeds.stream()
-                            .map(sub -> sub == null ? null : sub.trim())
-                            .toList();
-
-                    for (String sub : subBreeds) {
-                        if (sub == null || sub.isBlank()) {
-                            throw new InvalidImportFileException("Sub-breed names cannot be blank");
-                        }
-
-                        if (sub.length() > 100) {
-                            throw new InvalidImportFileException("Sub-breed name cannot exceed 100 characters");
-                        }
-                    }
-                }
-
-                CreateBreedRequest request = new CreateBreedRequest();
-                request.setName(name);
-                request.setSubBreeds(subBreeds);
-
-                return createBreed(request);
-            }).toList();
-
-            log.info("Imported {} breeds from file {}", imported.size(), file.getOriginalFilename());
-            return imported;
-        } catch (IOException ex) {
+        } catch (IOException | JacksonException ex) {
             throw new InvalidImportFileException("Invalid JSON file");
         }
     }
 
+    private List<CreateBreedRequest> validateImportFile(Map<String, List<String>> breeds) {
+        if (breeds == null || breeds.isEmpty()) {
+            throw new InvalidImportFileException("File contains no breeds");
+        }
+
+        List<CreateBreedRequest> requests = new ArrayList<>();
+        Set<String> seenNames = new HashSet<>();
+
+        for (Map.Entry<String, List<String>> entry : breeds.entrySet()) {
+            String name = entry.getKey() == null ? null : entry.getKey().trim();
+
+            if (name == null || name.isBlank()) {
+                throw new InvalidImportFileException("Breed name cannot be blank");
+            }
+            if (name.length() > 100) {
+                throw new InvalidImportFileException("Breed name cannot exceed 100 characters: " + name);
+            }
+            if (!seenNames.add(name.toLowerCase())) {
+                throw new InvalidImportFileException("Duplicate breed in file: " + name);
+            }
+
+            List<String> subBreeds = new ArrayList<>();
+            Set<String> seenSubBreeds = new HashSet<>();
+
+            if (entry.getValue() != null) {
+                for (String sub : entry.getValue()) {
+                    sub = sub == null ? null : sub.trim();
+
+                    if (sub == null || sub.isBlank()) {
+                        throw new InvalidImportFileException("Sub-breed names cannot be blank in breed: " + name);
+                    }
+                    if (sub.length() > 100) {
+                        throw new InvalidImportFileException("Sub-breed name cannot exceed 100 characters in breed: " + name);
+                    }
+                    if (!seenSubBreeds.add(sub.toLowerCase())) {
+                        throw new InvalidImportFileException("Duplicate sub-breed '" + sub + "' in breed: " + name);
+                    }
+                    subBreeds.add(sub);
+                }
+            }
+
+            CreateBreedRequest request = new CreateBreedRequest();
+            request.setName(name);
+            request.setSubBreeds(subBreeds);
+            requests.add(request);
+        }
+
+        return requests;
+    }
 
     private BreedResponse mapToResponse(Breed breed) {
         BreedResponse breedResponse = new BreedResponse();
