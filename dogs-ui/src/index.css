@@ -1,0 +1,5 @@
+/* Shown while an API request is running: page is faded and not clickable */
+body.page-busy {
+  opacity: 0.6;
+  pointer-events: none;
+}

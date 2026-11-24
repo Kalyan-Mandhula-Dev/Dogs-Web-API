@@ -4,6 +4,9 @@ const API_URL = import.meta.env.VITE_DOGS_API_URL;
 class ApiService {
 
     static async request(endpoint, options = {}) {
+
+        document.body.classList.add("page-busy");
+
         try {
 
             const response = await fetch(`${API_URL}${endpoint}`, options);
@@ -36,6 +39,8 @@ class ApiService {
                 status: null,
                 message: "Unable to connect to the server. Please try again later."
             }
+        } finally {
+            document.body.classList.remove("page-busy");
         }
     }
 
